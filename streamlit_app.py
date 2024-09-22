@@ -9,11 +9,19 @@ def load_secrets():
 
 secrets = load_secrets()
 
+# for x in secrets['users']:
+#     print(x)
+#     print(secrets['users'][x]['password'])
+#     print(secrets['users'][x]['role'])
+
+
+role2be = ''
 
 # Login - authentication
 def authenticate(username, password):
     if username in secrets['users']:
         stored_password = secrets['users'][username]['password']
+        role2be = secrets['users'][username]['role']
         if stored_password == password:
             return True
         else:
@@ -48,7 +56,7 @@ def login():
 
     if login_button:
         if authenticate(username, password):
-            st.session_state.role = lookup_role(username)
+            st.session_state.role = role2be#lookup_role(username)
             st.rerun()
         else:
             st.error("Invalid username or password")
