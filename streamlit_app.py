@@ -1,21 +1,23 @@
 import streamlit as st
-import hashlib as hl
+import yaml
 
+# Load the secrets.yaml file
+def load_secrets():
+    with open("secrets.yaml", "r") as file:
+        return yaml.safe_load(file)
+
+secrets = load_secrets()
 
 # Login - authentication
 
-# def authenticate(username, password):
-#     """Function to check the username and password."""
-#     password_hash = hl.sha256(password.encode()).hexdigest()
-#     if username in users_db and users_db[username] == password_hash:
-#         return True
-#     return False
-
-
-# users_db = {
-#     "admin": hl.sha256("admin".encode()).hexdigest(),
-#     "user1": hl.sha256("mypassword".encode()).hexdigest()
-# }
+def authenticate(username, password):
+    if username in secrets['users']:
+        stored_password = secrets['users'][username]['password']
+        if stored_password == password:
+            return True
+        else:
+            return
+    return False
 
 
 if "role" not in st.session_state:
@@ -44,8 +46,11 @@ def login():
         login_button = st.button("Log in")
 
     if login_button:
-        st.session_state.role = lookup_role(username)
-        st.rerun()
+        if authenticate(username, password):
+            st.session_state.role = lookup_role(username)
+            st.rerun()
+        else:
+            st.error("Invalid username or password")
 
 
 def logout():
