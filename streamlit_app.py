@@ -5,15 +5,27 @@ if "role" not in st.session_state:
 
 ROLES = [None, "Requester", "Responder", "Admin"]
 
+
+# users_db = {
+#     "admin": sha256("admin".encode()).hexdigest(),
+#     "user1": sha256("mypassword".encode()).hexdigest()
+# }
+
+user_roles = {'admin': 'admin', 'oco': 'oco'}
+
+# def authenticate(username, password):
+#     """Function to check the username and password."""
+#     password_hash = sha256(password.encode()).hexdigest()
+#     if username in users_db and users_db[username] == password_hash:
+#         return True
+#     return False
+
+
+
 username = st.text_input("Username")
 password = st.text_input("Password", type="password")
 login_button = st.button("Log in")
 
-
-# if username == 'admin':
-#     role = "Admin"
-# else:
-#     role = "Responder"
 
 def login():
     st.header("Log in")
@@ -90,7 +102,7 @@ pg.run()
 
 
 
-# A simple in-memory user database
+# #A simple in-memory user database
 # users_db = {
 #     "admin": sha256("admin".encode()).hexdigest(),
 #     "user1": sha256("mypassword".encode()).hexdigest()
