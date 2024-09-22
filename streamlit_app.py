@@ -25,21 +25,8 @@ def role_lookup(username):
         return secrets['users'][username]['role']
     return None 
 
-
 if "role" not in st.session_state:
     st.session_state.role = None
-
-ROLES = [None, "Requester", "Responder", "Admin"]
-
-
-user_roles = {'admin': 'Admin', 'oco': 'Responder'}
-
-
-def lookup_role(test_name):
-    if test_name in user_roles:
-        return user_roles[test_name]
-    return None
-
 
 def login():
     st.header("Log in")
