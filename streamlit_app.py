@@ -5,6 +5,11 @@ if "role" not in st.session_state:
 
 ROLES = [None, "Requester", "Responder", "Admin"]
 
+username = st.sidebar.text_input("Username")
+password = st.sidebar.text_input("Password", type="password")
+login_button = st.sidebar.button("Login")
+
+
 
 def login():
 
