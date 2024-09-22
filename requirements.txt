@@ -1,4 +1,4 @@
 # requirements.txt
 streamlit
 pyyaml
-pyhashlib
+pyhash
