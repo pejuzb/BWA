@@ -2,9 +2,6 @@ import streamlit as st
 import yaml
 
 
-
-#print(hl.sha256("admin".encode()).hexdigest())
-
 # Load the secrets.yaml file
 def load_secrets():
     with open("secrets.yaml", "r") as file:
