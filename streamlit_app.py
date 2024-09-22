@@ -22,8 +22,15 @@ if "role" not in st.session_state:
     st.session_state.role = None
 
 ROLES = [None, "Requester", "Responder", "Admin"]
-user_roles = {'admin': 'admin', 'oco': 'oco'}
 
+
+user_roles = {'admin': 'admin', 'oco': 'Responder'}
+
+
+def lookup_role(test_name):
+    if test_name in user_roles:
+        return user_roles[test_name]
+    return None
 
 
 def login():
@@ -35,15 +42,9 @@ def login():
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         login_button = st.button("Log in")
-    
-    if username == 'admin':
-        role = "Admin"
-    else:
-        role = "Responder"
-
 
     if login_button:
-        st.session_state.role = role
+        st.session_state.role = lookup_role(username)
         st.rerun()
 
 
