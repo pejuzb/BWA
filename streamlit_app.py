@@ -1,21 +1,21 @@
 import streamlit as st
-import hashlib as hl
+#import hashlib as hl
 
 
 # Login - authentication
 
-def authenticate(username, password):
-    """Function to check the username and password."""
-    password_hash = hl.sha256(password.encode()).hexdigest()
-    if username in users_db and users_db[username] == password_hash:
-        return True
-    return False
+# def authenticate(username, password):
+#     """Function to check the username and password."""
+#     password_hash = hl.sha256(password.encode()).hexdigest()
+#     if username in users_db and users_db[username] == password_hash:
+#         return True
+#     return False
 
 
-users_db = {
-    "admin": hl.sha256("admin".encode()).hexdigest(),
-    "user1": hl.sha256("mypassword".encode()).hexdigest()
-}
+# users_db = {
+#     "admin": hl.sha256("admin".encode()).hexdigest(),
+#     "user1": hl.sha256("mypassword".encode()).hexdigest()
+# }
 
 
 if "role" not in st.session_state:
