@@ -7,16 +7,24 @@ ROLES = [None, "Requester", "Responder", "Admin"]
 
 username = st.text_input("Username")
 password = st.text_input("Password", type="password")
-login_button = st.button("Login")
+login_button = st.button("Log in")
 
 
+# if username == 'admin':
+#     role = "Admin"
+# else:
+#     role = "Responder"
 
 def login():
-
     st.header("Log in")
-    role = st.selectbox("Choose your role", ROLES)
+    
+    if username == 'admin':
+        role = "Admin"
+    else:
+        role = "Responder"
 
-    if st.button("Log in"):
+
+    if login_button:
         st.session_state.role = role
         st.rerun()
 
