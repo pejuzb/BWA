@@ -9,8 +9,8 @@ def load_secrets():
 
 secrets = load_secrets()
 
-# Login - authentication
 
+# Login - authentication
 def authenticate(username, password):
     if username in secrets['users']:
         stored_password = secrets['users'][username]['password']
