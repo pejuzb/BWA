@@ -26,7 +26,7 @@ if "role" not in st.session_state:
 ROLES = [None, "Requester", "Responder", "Admin"]
 
 
-user_roles = {'admin': 'admin', 'oco': 'Responder'}
+user_roles = {'admin': 'Admin', 'oco': 'Responder'}
 
 
 def lookup_role(test_name):
