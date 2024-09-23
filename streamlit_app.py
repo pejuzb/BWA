@@ -24,7 +24,7 @@ st.write(hash_password('admin'))
 stored_password_hash = '$2b$12$4C5vuJbtCLg.B1Wt3A3fEelkGPPJWnqkFLD2q8xxnyavsVNsFObyO'
 
 
-test_pass = st.input('Enter test password')
+test_pass = st.text_input('Enter test password')
 st.button('Check password')
 
 if st.button:
