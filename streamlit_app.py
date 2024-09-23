@@ -99,7 +99,7 @@ respond_pages = [respond_1, respond_2]
 admin_pages = [admin_1, admin_2]
 
 #st.title("Request manager")
-st.logo("images/budget_app_logo_transparent.png", icon_image="images/budget_app_logo_transparent.png")
+st.logo("images/horizontal_blue.png", icon_image="images/budget_app_logo_transparent.png")
 
 page_dict = {}
 if st.session_state.role in ["Requester", "Admin"]:
