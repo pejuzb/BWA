@@ -10,7 +10,7 @@ def load_secrets():
 secrets = load_secrets()
 
 
-# Password hashing
+#Password hashing
 def hash_password(password):
     salt = bc.gensalt()  # Generate salt
     hashed_password = bc.hashpw(password.encode('utf-8'), salt)  # Hash password
@@ -18,6 +18,9 @@ def hash_password(password):
 
 def check_password(stored_password_hash, entered_password):
     return bc.checkpw(entered_password.encode('utf-8'), stored_password_hash)
+
+
+st.write(hash_password('admin'))
 
 # Login - authentication
 def authenticate(username, password):
