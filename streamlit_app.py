@@ -54,16 +54,19 @@ def login():
         st.write(to_be_check)
         
 
+
     if login_button:
-        if authenticate(username, password):
-            st.session_state.role = role_lookup(username)
-            if check_password(to_be_check, password):
-                print("Login successful")
-            else:
-                print("Invalid credentials")
-            st.rerun()
+        if check_password(to_be_check, password):
+            print("Login successful")
         else:
-            st.error("Invalid username or password")
+            print("Invalid credentials")
+                
+    # if login_button:
+    #     if authenticate(username, password):
+    #         st.session_state.role = role_lookup(username)
+    #         st.rerun()
+    #     else:
+    #         st.error("Invalid username or password")
 
 
 def logout():
