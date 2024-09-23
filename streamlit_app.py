@@ -9,12 +9,14 @@ def load_secrets():
 
 secrets = load_secrets()
 
-# Hashing a password (password is provided as a normal string)
-hashed_password = bc.hashpw("password123".encode('utf-8'), bc.gensalt())
+# Function to hash password during registration
+def hash_password(password):
+    salt = bc.gensalt()  # Generate salt
+    hashed_password = bc.hashpw(password.encode('utf-8'), salt)  # Hash password
+    return hashed_password
 
-# Output will be in byte format
-
-
+xyz = "mysecretpassword"
+hashed_password = hash_password(xyz)
 
 # Login - authentication
 def authenticate(username, password):
