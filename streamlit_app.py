@@ -19,8 +19,6 @@ def check_password(stored_password_hash, entered_password):
     return bc.checkpw(entered_password.encode('utf-8'), stored_password_hash)
 
 
-xyz = "mysecretpassword"
-hashed_password = hash_password(xyz)
 
 to_be_check = b'$2b$12$qf0CJ1MxRX0Gw9RwEf0ck.HAUmPjf92rF2NIcX83XIWMBMtV8HypC'
 
@@ -53,15 +51,16 @@ def login():
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         login_button = st.button("Log in")
-        st.write(hashed_password)
-        if check_password(to_be_check, password):
-            print("Login successful")
-        else:
-            print("Invalid credentials")
+        st.write(to_be_check)
+        
 
     if login_button:
         if authenticate(username, password):
             st.session_state.role = role_lookup(username)
+            if check_password(to_be_check, password):
+                print("Login successful")
+            else:
+                print("Invalid credentials")
             st.rerun()
         else:
             st.error("Invalid username or password")
