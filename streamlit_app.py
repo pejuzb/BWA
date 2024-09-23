@@ -13,7 +13,7 @@ secrets = load_secrets()
 hashed_password = bc.hashpw("password123".encode('utf-8'), bc.gensalt())
 
 # Output will be in byte format
-print(hashed_password)
+
 
 
 # Login - authentication
@@ -43,6 +43,7 @@ def login():
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         login_button = st.button("Log in")
+        st.write(hashed_password)
 
     if login_button:
         if authenticate(username, password):
