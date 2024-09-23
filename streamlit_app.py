@@ -20,7 +20,7 @@ def check_password(stored_password_hash, entered_password):
 
 
 
-to_be_check = '$2b$12$qf0CJ1MxRX0Gw9RwEf0ck.HAUmPjf92rF2NIcX83XIWMBMtV8HypC'
+to_be_check = b'$2b$12$qf0CJ1MxRX0Gw9RwEf0ck.HAUmPjf92rF2NIcX83XIWMBMtV8HypC'
 
 
 
