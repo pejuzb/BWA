@@ -98,7 +98,7 @@ request_pages = [request_1, request_2]
 respond_pages = [respond_1, respond_2]
 admin_pages = [admin_1, admin_2]
 
-st.title("Request manager")
+#st.title("Request manager")
 st.logo("images/horizontal_blue.png", icon_image="images/icon_blue.png")
 
 page_dict = {}
