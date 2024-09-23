@@ -15,8 +15,16 @@ def hash_password(password):
     hashed_password = bc.hashpw(password.encode('utf-8'), salt)  # Hash password
     return hashed_password
 
+def check_password(stored_password_hash, entered_password):
+    return bc.checkpw(entered_password.encode('utf-8'), stored_password_hash)
+
+
 xyz = "mysecretpassword"
 hashed_password = hash_password(xyz)
+
+to_be_check = b'$2b$12$qf0CJ1MxRX0Gw9RwEf0ck.HAUmPjf92rF2NIcX83XIWMBMtV8HypC'
+
+
 
 # Login - authentication
 def authenticate(username, password):
@@ -46,6 +54,10 @@ def login():
         password = st.text_input("Password", type="password")
         login_button = st.button("Log in")
         st.write(hashed_password)
+        if check_password(to_be_check, password):
+            print("Login successful")
+        else:
+            print("Invalid credentials")
 
     if login_button:
         if authenticate(username, password):
