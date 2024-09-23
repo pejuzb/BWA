@@ -16,33 +16,39 @@ def hash_password(password):
     hashed_password = bc.hashpw(password.encode('utf-8'), salt)  # Hash password
     return hashed_password
 
-def check_password(stored_password_hash, entered_password):
+def check_password(username, entered_password):
+    if username in secrets['users']:
+         stored_password_hash = secrets['users'][username]['password']
     return bc.checkpw(entered_password.encode('utf-8'), stored_password_hash)
 
 
-st.write(hash_password('admin'))
-stored_password_hash = b'$2b$12$4C5vuJbtCLg.B1Wt3A3fEelkGPPJWnqkFLD2q8xxnyavsVNsFObyO'
+# st.write(hash_password('admin'))
+# stored_password_hash = b'$2b$12$4C5vuJbtCLg.B1Wt3A3fEelkGPPJWnqkFLD2q8xxnyavsVNsFObyO'
 
 
-test_pass = st.text_input('Enter test password')
-st.button('Check password')
+# test_pass = st.text_input('Enter test password')
+# st.button('Check password')
 
-if st.button:
-    if check_password(stored_password_hash, test_pass):
-        st.write('Password is correct')
-    else:
-        st.write('Password is incorrect')
+# if st.button:
+#     if check_password(stored_password_hash, test_pass):
+#         st.write('Password is correct')
+#     else:
+#         st.write('Password is incorrect')
+
+#Password hashing test 
+
+
 
 
 # Login - authentication
-def authenticate(username, password):
-    if username in secrets['users']:
-        stored_password = secrets['users'][username]['password']
-        if stored_password == password:
-            return True
-        else:
-            return 
-    return False
+# def authenticate(username, password):
+#     if username in secrets['users']:
+#         stored_password = secrets['users'][username]['password']
+#         if stored_password == password:
+#             return True
+#         else:
+#             return 
+#     return False
 
 def role_lookup(username):
     if username in secrets['users']:
@@ -65,7 +71,8 @@ def login():
         
                 
     if login_button:
-        if authenticate(username, password):
+        #if authenticate(username, password):
+        if check_password(username, password):
             st.session_state.role = role_lookup(username)
             st.rerun()
         else:
