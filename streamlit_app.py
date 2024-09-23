@@ -22,8 +22,8 @@ def check_password(username, entered_password):
     return bc.checkpw(entered_password.encode('utf-8'), stored_password_hash.encode('utf-8'))
 
 
-# st.write(hash_password('admin'))
-# stored_password_hash = b'$2b$12$4C5vuJbtCLg.B1Wt3A3fEelkGPPJWnqkFLD2q8xxnyavsVNsFObyO'
+st.write(hash_password('oco'))
+
 
 
 # test_pass = st.text_input('Enter test password')
