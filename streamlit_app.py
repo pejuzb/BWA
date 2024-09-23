@@ -1,6 +1,6 @@
 import streamlit as st
 import yaml
-
+import bcrypt as bc
 
 # Load the secrets.yaml file
 def load_secrets():
@@ -49,6 +49,10 @@ def login():
 def logout():
     st.session_state.role = None
     st.rerun()
+
+
+
+
 
 
 role = st.session_state.role
