@@ -72,7 +72,7 @@ def login():
                 
     if login_button:
         #if authenticate(username, password):
-        if check_password(username, password):
+        if check_password(username, password.encode('utf-8')):
             st.session_state.role = role_lookup(username)
             st.rerun()
         else:
