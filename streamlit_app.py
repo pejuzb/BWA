@@ -21,7 +21,7 @@ def check_password(stored_password_hash, entered_password):
 
 
 st.write(hash_password('admin'))
-stored_password_hash = '$2b$12$4C5vuJbtCLg.B1Wt3A3fEelkGPPJWnqkFLD2q8xxnyavsVNsFObyO'
+stored_password_hash = b'$2b$12$4C5vuJbtCLg.B1Wt3A3fEelkGPPJWnqkFLD2q8xxnyavsVNsFObyO'
 
 
 test_pass = st.text_input('Enter test password')
