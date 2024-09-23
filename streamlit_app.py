@@ -20,7 +20,7 @@ def check_password(stored_password_hash, entered_password):
 
 
 
-to_be_check = b'$2b$12$qf0CJ1MxRX0Gw9RwEf0ck.HAUmPjf92rF2NIcX83XIWMBMtV8HypC'
+to_be_check = '$2b$12$qf0CJ1MxRX0Gw9RwEf0ck.HAUmPjf92rF2NIcX83XIWMBMtV8HypC'
 
 
 
@@ -59,7 +59,7 @@ def login():
         if check_password(to_be_check, password):
             st.write("Login successful")
         else:
-            st.write("Invalid credentials")
+            print("Invalid credentials")
                 
     # if login_button:
     #     if authenticate(username, password):
