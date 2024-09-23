@@ -57,9 +57,9 @@ def login():
 
     if login_button:
         if check_password(to_be_check, password):
-            print("Login successful")
+            st.write("Login successful")
         else:
-            print("Invalid credentials")
+            st.write("Invalid credentials")
                 
     # if login_button:
     #     if authenticate(username, password):
