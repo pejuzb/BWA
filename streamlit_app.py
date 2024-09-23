@@ -21,6 +21,18 @@ def check_password(stored_password_hash, entered_password):
 
 
 st.write(hash_password('admin'))
+stored_password_hash = '$2b$12$4C5vuJbtCLg.B1Wt3A3fEelkGPPJWnqkFLD2q8xxnyavsVNsFObyO'
+
+
+test_pass = st.input('Enter test password')
+st.button('Check password')
+
+if st.button:
+    if check_password(stored_password_hash, test_pass):
+        st.write('Password is correct')
+    else:
+        st.write('Password is incorrect')
+
 
 # Login - authentication
 def authenticate(username, password):
