@@ -19,7 +19,7 @@ def hash_password(password):
 def check_password(username, entered_password):
     if username in secrets['users']:
          stored_password_hash = secrets['users'][username]['password']
-    return bc.checkpw(entered_password.encode('utf-8'), stored_password_hash)
+    return bc.checkpw(entered_password.encode('utf-8'), stored_password_hash.encode('utf-8'))
 
 
 # st.write(hash_password('admin'))
@@ -72,7 +72,7 @@ def login():
                 
     if login_button:
         #if authenticate(username, password):
-        if check_password(username, password.encode('utf-8')):
+        if check_password(username, password):
             st.session_state.role = role_lookup(username)
             st.rerun()
         else:
