@@ -9,7 +9,8 @@ def load_secrets():
 
 secrets = load_secrets()
 
-# Function to hash password during registration
+
+# Password hashing
 def hash_password(password):
     salt = bc.gensalt()  # Generate salt
     hashed_password = bc.hashpw(password.encode('utf-8'), salt)  # Hash password
@@ -18,12 +19,6 @@ def hash_password(password):
 def check_password(stored_password_hash, entered_password):
     return bc.checkpw(entered_password.encode('utf-8'), stored_password_hash)
 
-
-
-to_be_check = b'$2b$12$qf0CJ1MxRX0Gw9RwEf0ck.HAUmPjf92rF2NIcX83XIWMBMtV8HypC'
-
-
-
 # Login - authentication
 def authenticate(username, password):
     if username in secrets['users']:
@@ -31,7 +26,7 @@ def authenticate(username, password):
         if stored_password == password:
             return True
         else:
-            return
+            return 
     return False
 
 def role_lookup(username):
@@ -51,22 +46,15 @@ def login():
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         login_button = st.button("Log in")
-        st.write(to_be_check)
+
         
-
-
-    if login_button:
-        if check_password(to_be_check, password):
-            st.write("Login successful")
-        else:
-            print("Invalid credentials")
                 
-    # if login_button:
-    #     if authenticate(username, password):
-    #         st.session_state.role = role_lookup(username)
-    #         st.rerun()
-    #     else:
-    #         st.error("Invalid username or password")
+    if login_button:
+        if authenticate(username, password):
+            st.session_state.role = role_lookup(username)
+            st.rerun()
+        else:
+            st.error("Invalid username or password")
 
 
 def logout():
