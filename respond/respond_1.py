@@ -12,7 +12,9 @@ st.write(f"You are logged in as {st.session_state.role}.")
 AZURE_STORAGE_CONNECTION = os.getenv('AZURE_STORAGE_CONNECTION')
 AZURE_STORAGE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER')
 
-#test
+print(AZURE_STORAGE_CONNECTION)
+print(AZURE_STORAGE_CONTAINER)
+
 
 # Azure Storage Connection Information
 connection_string = AZURE_STORAGE_CONNECTION
