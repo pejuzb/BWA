@@ -1,5 +1,6 @@
 import streamlit as st
 from azure.storage.blob import BlobServiceClient
+import os
 
 st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
@@ -27,6 +28,14 @@ def upload_to_blob(file, filename):
 st.title("Upload Files to Azure Blob Storage")
 
 uploaded_file = st.file_uploader("Choose a file", type=['csv', 'txt', 'pdf', 'jpg', 'png'])
+
+# Access the secrets
+AZURE_STORAGE_CONNECTION = os.getenv('AZURE_STORAGE_CONNECTION')
+AZURE_STORAGE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER')
+
+# Use the secrets in your code
+print(f"CON: {AZURE_STORAGE_CONNECTION}")
+print(f"CONTA: {AZURE_STORAGE_CONTAINER}")
 
 if uploaded_file is not None:
     # Get the file details
