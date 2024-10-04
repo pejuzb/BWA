@@ -45,6 +45,13 @@ jobs:
           path: |
             release.zip
             !venv/
+      
+      - name: Output Azure Storage Secrets
+        run: |
+          echo "AZURE_STORAGE_CONNECTION: $AZURE_STORAGE_CONNECTION"
+          echo "AZURE_STORAGE_CONTAINER: $AZURE_STORAGE_CONTAINER"
+
+
 
   deploy:
     runs-on: ubuntu-latest
