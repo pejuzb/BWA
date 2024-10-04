@@ -5,9 +5,15 @@ import os as os
 st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
 
+
+# Access the secrets
+AZURE_STORAGE_CONNECTION = os.getenv('AZURE_STORAGE_CONNECTION')
+AZURE_STORAGE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER')
+
+
 # Azure Storage Connection Information
-connection_string = "https://basicpeterstorage.blob.core.windows.net/"
-container_name = "snfdb"
+connection_string = AZURE_STORAGE_CONNECTION
+container_name = AZURE_STORAGE_CONTAINER
 
 # Function to upload file to Azure Blob Storage
 def upload_to_blob(file, filename):
@@ -28,14 +34,6 @@ def upload_to_blob(file, filename):
 st.title("Upload Files to Azure Blob Storage")
 
 uploaded_file = st.file_uploader("Choose a file", type=['csv', 'txt', 'pdf', 'jpg', 'png'])
-
-# Access the secrets
-AZURE_STORAGE_CONNECTION = os.getenv('AZURE_STORAGE_CONNECTION')
-AZURE_STORAGE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER')
-
-# Use the secrets in your code
-print(f"CON: {AZURE_STORAGE_CONNECTION}")
-print(f"CONTA: {AZURE_STORAGE_CONTAINER}")
 
 if uploaded_file is not None:
     # Get the file details
