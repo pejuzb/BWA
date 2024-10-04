@@ -6,6 +6,8 @@ st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
 
 
+#test commit
+
 # Access the secrets
 AZURE_STORAGE_CONNECTION = os.getenv('AZURE_STORAGE_CONNECTION')
 AZURE_STORAGE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER')
