@@ -1,6 +1,6 @@
 import streamlit as st
 from azure.storage.blob import BlobServiceClient
-import os
+import os as os
 
 st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
