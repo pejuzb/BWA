@@ -13,9 +13,9 @@ AZURE_STORAGE_CONNECTION = os.getenv('AZURE_STORAGE_CONNECTION')
 AZURE_STORAGE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER')
 
 
-print('This is just a text')
-print(AZURE_STORAGE_CONNECTION)
-print(AZURE_STORAGE_CONTAINER)
+st.write('This is just a text')
+st.write(AZURE_STORAGE_CONNECTION)
+st.write(AZURE_STORAGE_CONTAINER)
 
 
 # Azure Storage Connection Information
