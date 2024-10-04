@@ -6,21 +6,20 @@ st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
 
 
-#test commit
+# Get secrets from environment variables
+azure_storage_connection = os.getenv('AZURE_STORAGE_CONNECTION')
+azure_storage_container = os.getenv('AZURE_STORAGE_CONTAINER')
 
-# Access the secrets
-AZURE_STORAGE_CONNECTION = os.getenv('AZURE_STORAGE_CONNECTION')
-AZURE_STORAGE_CONTAINER = os.getenv('AZURE_STORAGE_CONTAINER')
-
-
+# Print the secrets (they will be masked in the GitHub Actions logs)
 st.write('This is just a text')
-st.write(AZURE_STORAGE_CONNECTION)
-st.write(AZURE_STORAGE_CONTAINER)
+st.write(f"AZURE_STORAGE_CONNECTION: {azure_storage_connection}")
+st.write(f"AZURE_STORAGE_CONTAINER: {azure_storage_container}")
+
 
 
 # Azure Storage Connection Information
-connection_string = AZURE_STORAGE_CONNECTION
-container_name = AZURE_STORAGE_CONTAINER
+connection_string = azure_storage_connection
+container_name = azure_storage_container
 
 # Function to upload file to Azure Blob Storage
 def upload_to_blob(file, filename):
