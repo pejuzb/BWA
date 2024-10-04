@@ -3,3 +3,4 @@ streamlit
 pyyaml
 bcrypt
 azure-storage-blob
+os
