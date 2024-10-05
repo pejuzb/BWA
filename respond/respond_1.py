@@ -8,23 +8,23 @@ st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
 
 
-# Replace with your Key Vault URL (available on the Key Vault page in Azure)
-key_vault_url = "https://pjvault.vault.azure.net/"
+# # Replace with your Key Vault URL (available on the Key Vault page in Azure)
+# key_vault_url = "https://pjvault.vault.azure.net/"
 
-# Authenticate with DefaultAzureCredential, which works for various environments (Azure CLI, Managed Identity, etc.)
-credential = DefaultAzureCredential()
+# # Authenticate with DefaultAzureCredential, which works for various environments (Azure CLI, Managed Identity, etc.)
+# credential = DefaultAzureCredential()
 
-# Create a client to access Key Vault secrets
-client = SecretClient(vault_url=key_vault_url, credential=credential)
+# # Create a client to access Key Vault secrets
+# client = SecretClient(vault_url=key_vault_url, credential=credential)
 
-# Replace with the name of the secret you want to access
-secret_name = "azureconnection"
+# # Replace with the name of the secret you want to access
+# secret_name = "azureconnection"
 
-# Retrieve the secret value from Key Vault
-retrieved_secret = client.get_secret(secret_name)
+# # Retrieve the secret value from Key Vault
+# retrieved_secret = client.get_secret(secret_name)
 
-# Use the secret value in your application
-st.write(f"The secret value is: {retrieved_secret.value}")
+# # Use the secret value in your application
+# st.write(f"The secret value is: {retrieved_secret.value}")
 
 
 # # Get secrets from environment variables
