@@ -42,7 +42,7 @@ jobs:
             release.zip
             !venv/
       
-      - name: Output Azure Storage Secrets
+      - name: Set environment variables for Python
         run: |
           echo "AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
           echo "AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" >> $GITHUB_ENV
