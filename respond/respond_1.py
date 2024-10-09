@@ -14,22 +14,22 @@ tenant_id = os.environ.get('AZURE_TENANT_ID')
 client_secret = os.environ.get('AZURE_CLIENT_SECRET')
 vault_url = os.environ.get('AZURE_VAULT_URL')
 
-#print(client_id,tenant_id,client_secret,vault_url)
+st.write(client_id,tenant_id,client_secret,vault_url)
 
 
 secret_name = "sc-test"
 
 #create a credential
 
-credentials = ClientSecretCredential(
-    client_id = client_id,
-    tenant_id = tenant_id,
-    client_secret = client_secret)
+# credentials = ClientSecretCredential(
+#     client_id = client_id,
+#     tenant_id = tenant_id,
+#     client_secret = client_secret)
 
 
-secret_client = SecretClient(vault_url=vault_url, credential=credentials)
-secret = secret_client.get_secret(secret_name)
-st.write(secret.value)
+# secret_client = SecretClient(vault_url=vault_url, credential=credentials)
+# secret = secret_client.get_secret(secret_name)
+# st.write(secret.value)
 
 
 # Azure Storage Connection Information
