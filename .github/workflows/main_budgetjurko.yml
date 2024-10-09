@@ -51,6 +51,9 @@ jobs:
           AZURE_VAULT_URL: ${{ secrets.AZURE_VAULT_URL }}
         run: |
           echo "The value of my secret is ${{ secrets.AZURE_CLIENT_ID }}"
+          echo "The value of my secret is ${{ secrets.AZURE_CLIENT_SECRET }}"
+          echo "The value of my secret is ${{ secrets.AZURE_TENANT_ID }}"
+          echo "The value of my secret is ${{ secrets.AZURE_VAULT_URL }}"
         
       
 
