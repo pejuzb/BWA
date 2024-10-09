@@ -1,8 +1,8 @@
 import streamlit as st
-from azure-storage-blob import BlobServiceClient
+from azure.storage.blob import BlobServiceClient
 import os as os
-from azure-identity import ClientSecretCredential
-from azure-keyvault-secrets import SecretClient
+from azure.identity import ClientSecretCredential
+from azure.keyvault.secrets import SecretClient
 
 
 st.header("Upload a files")
