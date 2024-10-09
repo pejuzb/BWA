@@ -8,11 +8,19 @@ from azure.keyvault.secrets import SecretClient
 st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
 
+# Set environment variables using values from the environment
+os.environ["AZURE_CLIENT_ID"] = os.getenv("AZURE_CLIENT_ID")
+os.environ["AZURE_CLIENT_SECRET"] = os.getenv("AZURE_CLIENT_SECRET")
+os.environ["AZURE_TENANT_ID"] = os.getenv("AZURE_TENANT_ID")
+os.environ["AZURE_VAULT_URL"] = os.getenv("AZURE_VAULT_URL")
+
 
 client_id = os.environ.get('AZURE_CLIENT_ID')
 tenant_id = os.environ.get('AZURE_TENANT_ID')
 client_secret = os.environ.get('AZURE_CLIENT_SECRET')
 vault_url = os.environ.get('AZURE_VAULT_URL')
+
+
 
 st.write(client_id,tenant_id,client_secret,vault_url)
 
