@@ -5,4 +5,3 @@ bcrypt
 azure-storage-blob
 azure.identity
 azure.keyvault.secrets
-dotenv

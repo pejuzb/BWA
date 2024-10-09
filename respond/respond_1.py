@@ -3,7 +3,6 @@ from azure.storage.blob import BlobServiceClient
 import os as os
 from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
-from dotenv import load_dotenv
 
 
 st.header("Upload a files")
