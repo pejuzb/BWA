@@ -50,7 +50,7 @@ jobs:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_VAULT_URL: ${{ secrets.AZURE_VAULT_URL }}
         run: |
-          python respond/respond_1.py
+          streamlit run respond/respond_1.py
 
   deploy:
     runs-on: ubuntu-latest
