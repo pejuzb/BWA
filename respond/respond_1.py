@@ -3,10 +3,22 @@ from azure.storage.blob import BlobServiceClient
 import os as os
 from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
+from dotenv import load_dotenv
 
 
 st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
+
+
+load_dotenv()
+
+client_id = os.getenv('AZURE_CLIENT_ID')
+tenant_id = os.getenv('AZURE_TENANT_ID')
+client_secret = os.getenv('AZURE_CLIENT_SECRET')
+vault_url = os.getenv('AZURE_VAULT_URL')
+
+#print(client_id,tenant_id,client_secret,vault_url)
+
 
 
 # # Set environment variables using values from the environment
@@ -16,17 +28,17 @@ st.write(f"You are logged in as {st.session_state.role}.")
 # os.environ["AZURE_VAULT_URL"] = os.getenv("AZURE_VAULT_URL")
 
 
-client_id = os.environ.get('AZURE_CLIENT_ID')
-tenant_id = os.environ.get('AZURE_TENANT_ID')
-client_secret = os.environ.get('AZURE_CLIENT_SECRET')
-vault_url = os.environ.get('AZURE_VAULT_URL')
+# client_id = os.environ.get('AZURE_CLIENT_ID')
+# tenant_id = os.environ.get('AZURE_TENANT_ID')
+# client_secret = os.environ.get('AZURE_CLIENT_SECRET')
+# vault_url = os.environ.get('AZURE_VAULT_URL')
 
-st.write(f"client_id: {client_id}")
-st.write(f"tenant_id: {tenant_id}")
-st.write(f"client_secret: {client_secret}")
-st.write(f"vault_url: {vault_url}")
+# st.write(f"client_id: {client_id}")
+# st.write(f"tenant_id: {tenant_id}")
+# st.write(f"client_secret: {client_secret}")
+# st.write(f"vault_url: {vault_url}")
 
-secret_name = "sc-test"
+# secret_name = "sc-test"
 
 #create a credential
 
