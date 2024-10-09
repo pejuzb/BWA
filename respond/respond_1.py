@@ -17,7 +17,7 @@ tenant_id = os.getenv('AZURE_TENANT_ID')
 client_secret = os.getenv('AZURE_CLIENT_SECRET')
 vault_url = os.getenv('AZURE_VAULT_URL')
 
-st.write(client_id,tenant_id,client_secret,vault_url)
+#st.write(client_id,tenant_id,client_secret,vault_url)
 
 
 
@@ -33,24 +33,24 @@ st.write(client_id,tenant_id,client_secret,vault_url)
 # client_secret = os.environ.get('AZURE_CLIENT_SECRET')
 # vault_url = os.environ.get('AZURE_VAULT_URL')
 
-# st.write(f"client_id: {client_id}")
-# st.write(f"tenant_id: {tenant_id}")
-# st.write(f"client_secret: {client_secret}")
-# st.write(f"vault_url: {vault_url}")
+st.write(f"client_id: {client_id}")
+st.write(f"tenant_id: {tenant_id}")
+st.write(f"client_secret: {client_secret}")
+st.write(f"vault_url: {vault_url}")
 
-# secret_name = "sc-test"
+secret_name = "sc-test"
 
 #create a credential
 
-# credentials = ClientSecretCredential(
-#     client_id = client_id,
-#     tenant_id = tenant_id,
-#     client_secret = client_secret)
+credentials = ClientSecretCredential(
+    client_id = client_id,
+    tenant_id = tenant_id,
+    client_secret = client_secret)
 
 
-# secret_client = SecretClient(vault_url=vault_url, credential=credentials)
-# secret = secret_client.get_secret(secret_name)
-# st.write(secret.value)
+secret_client = SecretClient(vault_url=vault_url, credential=credentials)
+secret = secret_client.get_secret(secret_name)
+st.write(secret.value)
 
 
 
