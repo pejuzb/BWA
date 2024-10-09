@@ -5,8 +5,8 @@ from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
 
 
-# st.header("Upload a files")
-# st.write(f"You are logged in as {st.session_state.role}.")
+st.header("Upload a files")
+st.write(f"You are logged in as {st.session_state.role}.")
 
 
 # # Set environment variables using values from the environment
@@ -21,10 +21,10 @@ tenant_id = os.environ.get('AZURE_TENANT_ID')
 client_secret = os.environ.get('AZURE_CLIENT_SECRET')
 vault_url = os.environ.get('AZURE_VAULT_URL')
 
-
-
-print(client_id,tenant_id,client_secret,vault_url)
-
+st.write(f"client_id: {client_id}")
+st.write(f"tenant_id: {tenant_id}")
+st.write(f"client_secret: {client_secret}")
+st.write(f"vault_url: {vault_url}")
 
 secret_name = "sc-test"
 
