@@ -2,6 +2,6 @@
 streamlit
 pyyaml
 bcrypt
-azure-storage-blob
-azure.identity
-azure.keyvault.secrets
+#azure-storage-blob
+#azure.identity
+#azure.keyvault.secrets
