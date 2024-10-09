@@ -10,12 +10,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  AZURE_VAULT_URL: ${{ secrets.AZURE_VAULT_URL }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -50,9 +44,10 @@ jobs:
       
       - name: Output Azure Storage Secrets
         run: |
-          echo "AZURE_STORAGE_CONNECTION: $AZURE_STORAGE_CONNECTION"
-          echo "AZURE_STORAGE_CONTAINER: $AZURE_STORAGE_CONTAINER"
-
+          echo "AZURE_CLIENT_ID: $AZURE_CLIENT_ID" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_SECRET: $AZURE_CLIENT_SECRET" >> $GITHUB_ENV
+          echo "AZURE_TENANT_ID: $AZURE_TENANT_ID" >> $GITHUB_ENV
+          echo "AZURE_VAULT_URL: $AZURE_VAULT_URL" >> $GITHUB_ENV
 
 
   deploy:
