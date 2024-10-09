@@ -17,7 +17,7 @@ tenant_id = os.getenv('AZURE_TENANT_ID')
 client_secret = os.getenv('AZURE_CLIENT_SECRET')
 vault_url = os.getenv('AZURE_VAULT_URL')
 
-print(client_id,tenant_id,client_secret,vault_url)
+st.write(client_id,tenant_id,client_secret,vault_url)
 
 
 
