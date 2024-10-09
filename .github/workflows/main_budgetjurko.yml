@@ -44,11 +44,11 @@ jobs:
             !venv/
       
       - name: Set environment variables for Python
-        run: |
-          echo "AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
-          echo "AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" >> $GITHUB_ENV
-          echo "AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
-          echo "AZURE_VAULT_URL=${{ secrets.AZURE_VAULT_URL }}" >> $GITHUB_ENV
+        with:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_VAULT_URL: ${{ secrets.AZURE_VAULT_URL }}
 
   deploy:
     runs-on: ubuntu-latest
