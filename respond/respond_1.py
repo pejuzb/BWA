@@ -9,10 +9,10 @@ st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
 
 
-client_id = os.environ.get('AZURE_CLIENT_ID')
-tenant_id = os.environ.get('AZURE_TENANT_ID')
-client_secret = os.environ.get('AZURE_CLIENT_SECRET')
-vault_url = os.environ.get('AZURE_VAULT_URL')
+client_id = os.environ('AZURE_CLIENT_ID')
+tenant_id = os.environ('AZURE_TENANT_ID')
+client_secret = os.environ('AZURE_CLIENT_SECRET')
+vault_url = os.environ('AZURE_VAULT_URL')
 
 st.write(client_id,tenant_id,client_secret,vault_url)
 
