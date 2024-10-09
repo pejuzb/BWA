@@ -10,11 +10,11 @@ on:
       - main
   workflow_dispatch:
 
-# env:
-#   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-#   AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-#   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-#   AZURE_VAULT_URL: ${{ secrets.AZURE_VAULT_URL }}
+env:
+  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  AZURE_VAULT_URL: ${{ secrets.AZURE_VAULT_URL }}
 
 jobs:
   build:
