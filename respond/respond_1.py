@@ -1,41 +1,36 @@
 import streamlit as st
 from azure.storage.blob import BlobServiceClient
 import os as os
-from azure.identity import DefaultAzureCredential
+from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
+from dotenv import load_dotenv
+
 
 st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
 
 
-# # Replace with your Key Vault URL (available on the Key Vault page in Azure)
-# key_vault_url = "https://pjvault.vault.azure.net/"
+client_id = os.environ('AZURE_CLIENT_ID')
+tenant_id = os.environ('AZURE_TENANT_ID')
+client_secret = os.environ('AZURE_CLIENT_SECRET')
+vault_url = os.environ('AZURE_VAULT_URL')
 
-# # Authenticate with DefaultAzureCredential, which works for various environments (Azure CLI, Managed Identity, etc.)
-# credential = DefaultAzureCredential()
-
-# # Create a client to access Key Vault secrets
-# client = SecretClient(vault_url=key_vault_url, credential=credential)
-
-# # Replace with the name of the secret you want to access
-# secret_name = "azureconnection"
-
-# # Retrieve the secret value from Key Vault
-# retrieved_secret = client.get_secret(secret_name)
-
-# # Use the secret value in your application
-# st.write(f"The secret value is: {retrieved_secret.value}")
+#print(client_id,tenant_id,client_secret,vault_url)
 
 
-# # Get secrets from environment variables
-# azure_storage_connection = os.getenv('AZURE_STORAGE_CONNECTION')
-# azure_storage_container = os.getenv('AZURE_STORAGE_CONTAINER')
+secret_name = "sc-test"
 
-# # Print the secrets (they will be masked in the GitHub Actions logs)
-# st.write('This is just a text')
-# st.write(f"AZURE_STORAGE_CONNECTION: {azure_storage_connection}")
-# st.write(f"AZURE_STORAGE_CONTAINER: {azure_storage_container}")
+#create a credential
 
+credentials = ClientSecretCredential(
+    client_id = client_id,
+    tenant_id = tenant_id,
+    client_secret = client_secret)
+
+
+secret_client = SecretClient(vault_url=vault_url, credential=credentials)
+secret = secret_client.get_secret(secret_name)
+st.write(secret.value)
 
 
 # Azure Storage Connection Information
