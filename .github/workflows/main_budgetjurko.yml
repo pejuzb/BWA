@@ -89,4 +89,9 @@ jobs:
         with:
           app-name: 'budgetjurko'
           slot-name: 'Production'
+
+      # Set Azure Web App environment variables (application settings)
+      - name: Set environment variables in Azure Web App
+        run: |
+          az webapp config appsettings set --name budgetjurko --resource-group Resource_PJ --settings AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }} AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }} AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }} AZURE_VAULT_URL=${{ secrets.AZURE_VAULT_URL }}
           
