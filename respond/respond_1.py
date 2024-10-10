@@ -78,9 +78,18 @@ conn = snowflake.connector.connect(
 
 cur = conn.cursor()
 
-if st.button("Create Table"):
+if st.button("Load files"):
     try:
-        cur.execute("CREATE OR REPLACE TABLE BUDGET.RAW.AZURE_TABLE_TEST (AZ_TEST VARCHAR(123));")
-        st.write("Table created successfully!")
+        # Execute the stored procedures
+        cur.execute("CALL COPY_FILES_TO_RAW_REVOLUT();")
+        st.write("First stored procedure [REVOLUT] executed successfully!")
+
+        cur.execute("CALL COPY_FILES_TO_RAW_CSOB();")
+        st.write("Second stored procedure [CSOB] executed successfully!")
+
     except Exception as e:
         st.write(f"Error: {e}")  # Display error message if any
+
+# Close the cursor and connection
+cur.close()
+conn.close()
