@@ -19,6 +19,8 @@ vault_url = os.getenv('AZURE_VAULT_URL')
 storage_url = os.getenv('AZURE_STORAGE_URL')
 
 
+st.write(f"This is my storage url: {storage_url}")
+
 secret_name = "sc-test"
 
 #create a credential object
