@@ -54,8 +54,11 @@ def upload_to_blob(file, filename):
         # Create a blob client
         blob_client = blob_service_client.get_container_client(container=container_name)
 
-        # Upload the file to the blob
-        blob_client.upload_blob(file, overwrite=True)
+        # Read the file content
+        file_data = file.read()
+
+        # Upload the file content to the blob
+        blob_client.upload_blob(data=file_data, name=filename, overwrite=True)
         return f"File {filename} uploaded successfully!"
     except Exception as e:
         return f"Error uploading file: {e}"
