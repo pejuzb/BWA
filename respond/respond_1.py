@@ -4,31 +4,21 @@ import os as os
 from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
 from dotenv import load_dotenv
+import snowflake.connector
 
+load_dotenv()
 
 st.header("Upload a files")
 st.write(f"You are logged in as {st.session_state.role}.")
 
-
-load_dotenv()
+# Azure Key Vault
 
 client_id = os.getenv('AZURE_CLIENT_ID')
 tenant_id = os.getenv('AZURE_TENANT_ID')
 client_secret = os.getenv('AZURE_CLIENT_SECRET')
 vault_url = os.getenv('AZURE_VAULT_URL')
-#storage_url = os.getenv('AZURE_STORAGE_URL')
 
-
-#st.write(f"This is my storage url: {storage_url}")
-# st.write(f"This is my vault url: {vault_url}")
-# st.write(f"This is my client id: {client_id}")
-# st.write(f"This is my tenant id: {tenant_id}")
-
-
-
-
-
-#create a credential object
+# Create a credential object
 
 credentials = ClientSecretCredential(
     client_id = client_id,
@@ -36,23 +26,21 @@ credentials = ClientSecretCredential(
     client_secret = client_secret)
 
 
+# Function to get secrets from Azure Key Vault
 
-secret_client = SecretClient(vault_url=vault_url, credential=credentials)
-secret_name = "sc-storage"
-secret = secret_client.get_secret(secret_name)
-#st.write(secret.value)
-
-storage_url = secret.value
-container_name = 'snfdb'
+def secrets_get(secret_name):
+    secret_client = SecretClient(vault_url=vault_url, credential=credentials)
+    secret = secret_client.get_secret(secret_name)
+    return secret.value
 
 # Function to upload file to Azure Blob Storage
 def upload_to_blob(file, filename):
     try:
         # Create a blob service client using the connection string
-        blob_service_client = BlobServiceClient(account_url=storage_url, credential=credentials)
+        blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
 
         # Create a blob client
-        blob_client = blob_service_client.get_container_client(container=container_name)
+        blob_client = blob_service_client.get_container_client(container='snfdb')
 
         # Read the file content
         file_data = file.read()
@@ -82,3 +70,18 @@ if uploaded_file is not None:
     # Upload the file to Azure Blob Storage
     result_message = upload_to_blob(uploaded_file, uploaded_file.name)
     st.write(result_message)
+
+
+#snowflake connection
+
+conn = snowflake.connector.connect(
+    user=secrets_get('snf-user'),
+    password=secrets_get('snf-password'),
+    account=secrets_get('snf-account'),
+    warehouse='COMPUTE_WH',
+    database='BUDGET',
+    schema='RAW',
+    role='ACCOUNTADMIN'
+    )
+
+cur = conn.cursor()
