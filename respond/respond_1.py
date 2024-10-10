@@ -1,6 +1,6 @@
 import streamlit as st
 from azure.storage.blob import BlobServiceClient
-import os as os
+import os
 from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
 from dotenv import load_dotenv
@@ -8,22 +8,19 @@ import snowflake.connector
 load_dotenv()
 
 # Azure Key Vault
-
 client_id = os.getenv('AZURE_CLIENT_ID')
 tenant_id = os.getenv('AZURE_TENANT_ID')
 client_secret = os.getenv('AZURE_CLIENT_SECRET')
 vault_url = os.getenv('AZURE_VAULT_URL')
 
 # Create a credential object
-
 credentials = ClientSecretCredential(
-    client_id = client_id,
-    tenant_id = tenant_id,
-    client_secret = client_secret)
-
+    client_id=client_id,
+    tenant_id=tenant_id,
+    client_secret=client_secret
+)
 
 # Function to get secrets from Azure Key Vault
-
 def secrets_get(secret_name):
     secret_client = SecretClient(vault_url=vault_url, credential=credentials)
     secret = secret_client.get_secret(secret_name)
@@ -47,29 +44,28 @@ def upload_to_blob(file, filename):
     except Exception as e:
         return f"Error uploading file: {e}"
 
-# Streamlit File Uploader
+# Streamlit File Uploader for multiple files
 st.title("Upload Files to Azure Blob Storage")
 
-uploaded_file = st.file_uploader("Choose a file",type=['csv', 'txt', 'pdf', 'jpg', 'png'])
+uploaded_files = st.file_uploader("Choose files", type=['csv', 'txt', 'pdf', 'jpg', 'png'], accept_multiple_files=True)
 
-if uploaded_file is not None:
-    # Get the file details
-    file_details = {
-        "filename": uploaded_file.name,
-        "filetype": uploaded_file.type,
-        "filesize": uploaded_file.size
-    }
+if uploaded_files is not None:
+    for uploaded_file in uploaded_files:
+        # Get the file details
+        file_details = {
+            "filename": uploaded_file.name,
+            "filetype": uploaded_file.type,
+            "filesize": uploaded_file.size
+        }
 
-    # Display file details
-    st.write(file_details)
+        # Display file details
+        st.write(file_details)
 
-    # Upload the file to Azure Blob Storage
-    result_message = upload_to_blob(uploaded_file, uploaded_file.name)
-    st.write(result_message)
+        # Upload the file to Azure Blob Storage
+        result_message = upload_to_blob(uploaded_file, uploaded_file.name)
+        st.write(result_message)
 
-
-#snowflake connection
-
+# Snowflake connection
 conn = snowflake.connector.connect(
     user=secrets_get('snf-user'),
     password=secrets_get('snf-password'),
@@ -78,15 +74,13 @@ conn = snowflake.connector.connect(
     database='BUDGET',
     schema='RAW',
     role='ACCOUNTADMIN'
-    )
+)
 
 cur = conn.cursor()
 
-
 if st.button("Create Table"):
     try:
-        cur.execute("create or replace TABLE BUDGET.RAW.AZURE_TABLE_TEST (AZ_TEST VARCHAR(123));")
+        cur.execute("CREATE OR REPLACE TABLE BUDGET.RAW.AZURE_TABLE_TEST (AZ_TEST VARCHAR(123));")
         st.write("Table created successfully!")
-
     except Exception as e:
-        st.write(f"Error: {e}")     # Display error message if any
+        st.write(f"Error: {e}")  # Display error message if any
