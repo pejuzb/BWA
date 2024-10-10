@@ -85,3 +85,12 @@ conn = snowflake.connector.connect(
     )
 
 cur = conn.cursor()
+
+
+if st.button("Create Table"):
+    try:
+        cur.execute("create or replace TABLE BUDGET.RAW.AZURE_TABLE_TEST (AZ_TEST VARCHAR(123));")
+        st.write("Table created successfully!")
+
+    except Exception as e:
+        st.write(f"Error: {e}")     # Display error message if any
