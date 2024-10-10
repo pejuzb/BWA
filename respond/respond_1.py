@@ -26,7 +26,7 @@ st.write(f"This is my storage url: {storage_url}")
 
 
 
-secret_name = "sc-test"
+secret_name = "sc-storage"
 
 #create a credential object
 
