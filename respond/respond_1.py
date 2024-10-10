@@ -16,17 +16,17 @@ client_id = os.getenv('AZURE_CLIENT_ID')
 tenant_id = os.getenv('AZURE_TENANT_ID')
 client_secret = os.getenv('AZURE_CLIENT_SECRET')
 vault_url = os.getenv('AZURE_VAULT_URL')
-storage_url = os.getenv('AZURE_STORAGE_URL')
+#storage_url = os.getenv('AZURE_STORAGE_URL')
 
 
-st.write(f"This is my storage url: {storage_url}")
+#st.write(f"This is my storage url: {storage_url}")
 # st.write(f"This is my vault url: {vault_url}")
 # st.write(f"This is my client id: {client_id}")
 # st.write(f"This is my tenant id: {tenant_id}")
 
 
 
-secret_name = "sc-storage"
+
 
 #create a credential object
 
@@ -36,12 +36,13 @@ credentials = ClientSecretCredential(
     client_secret = client_secret)
 
 
+
 secret_client = SecretClient(vault_url=vault_url, credential=credentials)
+secret_name = "sc-storage"
 secret = secret_client.get_secret(secret_name)
-st.write(secret.value)
+#st.write(secret.value)
 
-
-
+storage_url = secret.value
 container_name = 'snfdb'
 
 # Function to upload file to Azure Blob Storage
