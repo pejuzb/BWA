@@ -50,7 +50,7 @@ def upload_to_blob(file, filename):
 # Streamlit File Uploader
 st.title("Upload Files to Azure Blob Storage")
 
-uploaded_file = st.file_uploader("Choose a file",accept_multiple_files=True, type=['csv', 'txt', 'pdf', 'jpg', 'png'])
+uploaded_file = st.file_uploader("Choose a file",type=['csv', 'txt', 'pdf', 'jpg', 'png'])
 
 if uploaded_file is not None:
     # Get the file details
