@@ -30,6 +30,9 @@ jobs:
           echo AZURE_CLIENT_SECRET =${{ secrets.AZURE_CLIENT_SECRET }} >> .env
           echo AZURE_TENANT_ID =${{ secrets.AZURE_TENANT_ID }} >> .env
           echo AZURE_VAULT_URL =${{ secrets.AZURE_VAULT_URL }} >> .env
+          echo AZURE_STORAGE_URL =${{ secrets.AZURE_STORAGE_URL }} >> .env
+
+          
 
       - name: Create and start virtual environment
         run: |

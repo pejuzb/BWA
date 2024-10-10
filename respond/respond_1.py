@@ -16,15 +16,12 @@ client_id = os.getenv('AZURE_CLIENT_ID')
 tenant_id = os.getenv('AZURE_TENANT_ID')
 client_secret = os.getenv('AZURE_CLIENT_SECRET')
 vault_url = os.getenv('AZURE_VAULT_URL')
+storage_url = os.getenv('AZURE_STORAGE_URL')
 
-# st.write(f"client_id: {client_id}")
-# st.write(f"tenant_id: {tenant_id}")
-# st.write(f"client_secret: {client_secret}")
-# st.write(f"vault_url: {vault_url}")
 
 secret_name = "sc-test"
 
-#create a credential
+#create a credential object
 
 credentials = ClientSecretCredential(
     client_id = client_id,
