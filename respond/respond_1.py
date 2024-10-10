@@ -35,18 +35,16 @@ st.write(secret.value)
 
 
 
-# Azure Storage Connection Information
-connection_string = ''
-container_name = ''
+container_name = 'snfdb'
 
 # Function to upload file to Azure Blob Storage
 def upload_to_blob(file, filename):
     try:
         # Create a blob service client using the connection string
-        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        blob_service_client = BlobServiceClient(account_url=storage_url, credential=credentials)
 
         # Create a blob client
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
+        blob_client = blob_service_client.get_container_client(container=container_name)
 
         # Upload the file to the blob
         blob_client.upload_blob(file, overwrite=True)
