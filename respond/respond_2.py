@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from mitosheet import MitoSheet
+import mitosheet
 from streamlit.components.v1 import iframe
 
 # Display Streamlit app title
