@@ -1,45 +1,44 @@
-from datetime import datetime, timedelta
-
-import pandas as pd
 import streamlit as st
-from mitosheet.streamlit.v1 import spreadsheet
-from mitosheet.streamlit.v1.spreadsheet import _get_mito_backend
+import pandas as pd
+from st_aggrid import AgGrid, GridOptionsBuilder
 
-st.set_page_config(layout="wide")
+# Sample DataFrame
+data = {
+    'Name': ['Alice', 'Bob', 'Charlie', 'David'],
+    'Age': [25, 30, 35, 40],
+    'Salary': [50000, 60000, 70000, 80000],
+    'Department': ['HR', 'Engineering', 'Marketing', 'Finance']
+}
 
-@st.cache_data
-def get_tesla_data():
-    df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/tesla-stock-price.csv')
-    df = df.drop(0)
-    df['volume'] = df['volume'].astype(float)
-    return df
+df = pd.DataFrame(data)
 
-tesla_data = get_tesla_data()
+# Set up the Streamlit app
+st.title("Streamlit Ag-Grid Integration Example")
+st.write("This is an interactive Ag-Grid table where you can edit, sort, and filter data.")
 
-new_dfs, code = spreadsheet(tesla_data)
-code = code if code else "# Edit the spreadsheet above to generate code"
-st.code(code)
+# Build grid options (editable, sortable, filterable)
+gb = GridOptionsBuilder.from_dataframe(df)
+gb.configure_default_column(editable=True, sortable=True, filterable=True)
+gridOptions = gb.build()
 
-def clear_mito_backend_cache():
-    _get_mito_backend.clear()
+# Display the grid
+grid_response = AgGrid(
+    df, 
+    gridOptions=gridOptions, 
+    editable=True, 
+    height=300, 
+    theme='blue'  # Available themes: 'light', 'dark', 'blue', 'material'
+)
 
-# Function to cache the last execution time - so we can clear periodically
-@st.cache_resource
-def get_cached_time():
-    # Initialize with a dictionary to store the last execution time
-    return {"last_executed_time": None}
+# Display updated data after edits
+st.write("Updated DataFrame (after any edits):")
+st.dataframe(grid_response['data'])
 
-def try_clear_cache():
-
-    # How often to clear the cache
-    CLEAR_DELTA = timedelta(hours=12)
-
-    current_time = datetime.now()
-    cached_time = get_cached_time()
-
-    # Check if the current time is different from the cached last execution time
-    if cached_time["last_executed_time"] is None or cached_time["last_executed_time"] + CLEAR_DELTA < current_time:
-        clear_mito_backend_cache()
-        cached_time["last_executed_time"] = current_time
-
-try_clear_cache()
+# Option to download the edited data as CSV
+csv = grid_response['data'].to_csv(index=False).encode('utf-8')
+st.download_button(
+    label="Download Updated Data as CSV",
+    data=csv,
+    file_name='updated_data.csv',
+    mime='text/csv',
+)
