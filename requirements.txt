@@ -9,3 +9,4 @@ python-dotenv
 snowflake-connector-python
 mitosheet
 pandas
+streamlit-aggrid
