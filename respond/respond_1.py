@@ -137,7 +137,8 @@ def load_data():
 
 # Function to insert DataFrame back into Snowflake
 def insert_data(df):
-    success, nchunks, nrows, _ = write_pandas(conn, df, 'BUDGET.CORE.HIERARCHY')
+    conn.cursor().execute("USE SCHEMA CORE")
+    success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
     if success:
         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
     else:
@@ -149,6 +150,7 @@ df = load_data()
 # Display editable DataFrame
 st.write("### Editable Table")
 edited_df = st.data_editor(df, num_rows="dynamic")
+
 
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
