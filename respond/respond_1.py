@@ -156,7 +156,7 @@ df = load_data()
 
 # Display editable DataFrame
 st.write("### Editable Table")
-edited_df = st.experimental_data_editor(df, num_rows="dynamic")
+edited_df = st.data_editor(df, num_rows="dynamic")
 
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
