@@ -78,6 +78,7 @@ conn = snowflake.connector.connect(
     role='ACCOUNTADMIN'
 )
 
+
 cur = conn.cursor()
 
 if st.button("Load files"):
@@ -106,19 +107,10 @@ st.dataframe(df)
 
 
 
-conn_params = {
-    'user': secrets_get('snf-user'),
-    'password': secrets_get('snf-password'),
-    'account': secrets_get('snf-account'),
-    'warehouse': 'COMPUTE_WH',
-    'database': 'BUDGET',
-    'schema': 'CORE',
-}
 
 # Function to query data from Snowflake
 @st.cache_data  # Caches the data to avoid querying every time
 def load_data():
-    with snowflake.connector.connect(**conn_params) as conn:
         query = """with test as (
         Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
         where a.owner = 'Jan'
@@ -132,24 +124,24 @@ def load_data():
         b.L2,
         b.L3,
         'Jan' as OWNER,
-        current_date() as LOAD_DATETIME
+        current_datetime() as LOAD_DATETIME
 
         from test as a
         left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
         on a.prod_hierarchy = b.prod_hierarchy_id
         where HIERARCHY_HK is null
         order by 1,2"""
+        
         df = pd.read_sql(query, conn)
-    return df
+        return df
 
 # Function to insert DataFrame back into Snowflake
 def insert_data(df):
-    with snowflake.connector.connect(**conn_params) as conn:
-        success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
-        if success:
-            st.success(f"Successfully inserted {nrows} rows into Snowflake!")
-        else:
-            st.error("Failed to insert data.")
+    success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
+    if success:
+        st.success(f"Successfully inserted {nrows} rows into Snowflake!")
+    else:
+        st.error("Failed to insert data.")
 
 # Load data from Snowflake
 df = load_data()
