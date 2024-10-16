@@ -124,7 +124,7 @@ def load_data():
         b.L2,
         b.L3,
         'Jan' as OWNER,
-        current_date() as LOAD_DATETIME
+        current_timestamp as LOAD_DATETIME
 
         from test as a
         left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
