@@ -90,6 +90,23 @@ if st.button("Load files"):
     except Exception as e:
         st.write(f"Error: {e}")  # Display error message if any
 
+
+# Query to fetch data from Snowflake
+query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan'"
+
+# Load data into Pandas DataFrame
+df = pd.read_sql(query, conn)
+
+# Close the connection
+conn.close()
+
+# Display the DataFrame using Streamlit
+st.title('Snowflake Data Viewer')
+st.write("Here is the data from Snowflake:")
+st.dataframe(df)
+
+
+
 # Close the cursor and connection
 cur.close()
 conn.close()
