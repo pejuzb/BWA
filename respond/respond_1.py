@@ -6,6 +6,7 @@ from azure.keyvault.secrets import SecretClient
 from dotenv import load_dotenv
 import snowflake.connector
 import pandas as pd
+from snowflake.connector.pandas_tools import write_pandas
 load_dotenv()
 
 # Azure Key Vault
@@ -105,35 +106,93 @@ st.dataframe(df)
 
 
 
-# Query to fetch data from Snowflake
-query_missing = """with test as (
-Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
-where a.owner = 'Jan'
-)
+conn_params = {
+    'user': secrets_get('snf-user'),
+    'password': secrets_get('snf-password'),
+    'account': secrets_get('snf-account'),
+    'warehouse': 'COMPUTE_WH',
+    'database': 'BUDGET',
+    'schema': 'CORE',
+}
 
-Select
-a.source_system,
-MD5(a.prod_hierarchy) as HIERARCHY_HK,
-a.prod_hierarchy as PROD_HIERARCHY_ID,
-b.L1,
-b.L2,
-b.L3,
-'Jan' as OWNER,
-current_date() as LOAD_DATETIME
+# Function to query data from Snowflake
+@st.cache_data  # Caches the data to avoid querying every time
+def load_data():
+    with snowflake.connector.connect(**conn_params) as conn:
+        query = """with test as (
+        Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
+        where a.owner = 'Jan'
+        )
 
-from test as a
-left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
-on a.prod_hierarchy = b.prod_hierarchy_id
-where HIERARCHY_HK is null
-order by 1,2"""
+        Select
+        --a.source_system,
+        MD5(a.prod_hierarchy) as HIERARCHY_HK,
+        a.prod_hierarchy as PROD_HIERARCHY_ID,
+        b.L1,
+        b.L2,
+        b.L3,
+        'Jan' as OWNER,
+        current_date() as LOAD_DATETIME
 
-# Load data into Pandas DataFrame
-df_miss = pd.read_sql(query_missing, conn)
+        from test as a
+        left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
+        on a.prod_hierarchy = b.prod_hierarchy_id
+        where HIERARCHY_HK is null
+        order by 1,2"""
+        df = pd.read_sql(query, conn)
+    return df
 
-# Display the DataFrame using Streamlit
-st.title('Snowflake Missing Hierarchy')
-st.write("Here is the data Missing in Hierarchy:")
-st.dataframe(df_miss)
+# Function to insert DataFrame back into Snowflake
+def insert_data(df):
+    with snowflake.connector.connect(**conn_params) as conn:
+        success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
+        if success:
+            st.success(f"Successfully inserted {nrows} rows into Snowflake!")
+        else:
+            st.error("Failed to insert data.")
+
+# Load data from Snowflake
+df = load_data()
+
+# Display editable DataFrame
+st.write("### Editable Table")
+edited_df = st.experimental_data_editor(df, num_rows="dynamic")
+
+# Button to insert updated data
+if st.button("Insert Data into Snowflake"):
+    insert_data(edited_df)
+
+
+
+# # Query to fetch data from Snowflake
+# query_missing = """with test as (
+# Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
+# where a.owner = 'Jan'
+# )
+
+# Select
+# a.source_system,
+# MD5(a.prod_hierarchy) as HIERARCHY_HK,
+# a.prod_hierarchy as PROD_HIERARCHY_ID,
+# b.L1,
+# b.L2,
+# b.L3,
+# 'Jan' as OWNER,
+# current_date() as LOAD_DATETIME
+
+# from test as a
+# left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
+# on a.prod_hierarchy = b.prod_hierarchy_id
+# where HIERARCHY_HK is null
+# order by 1,2"""
+
+# # Load data into Pandas DataFrame
+# df_miss = pd.read_sql(query_missing, conn)
+
+# # Display the DataFrame using Streamlit
+# st.title('Snowflake Missing Hierarchy')
+# st.write("Here is the data Missing in Hierarchy:")
+# st.dataframe(df_miss)
 
 
 # Close the cursor and connection
