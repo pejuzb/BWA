@@ -137,7 +137,7 @@ def load_data():
 
 # Function to insert DataFrame back into Snowflake
 def insert_data(df):
-    success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
+    success, nchunks, nrows, _ = write_pandas(conn, df, 'BUDGET.CORE.HIERARCHY')
     if success:
         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
     else:
