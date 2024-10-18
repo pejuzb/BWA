@@ -108,17 +108,17 @@ st.dataframe(df)
 
 
 
-# # Query to fetch data from Snowflake
-# query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Jan' and L1 is null
-# order by transaction_date desc;"""
+# Query to fetch data from Snowflake
+query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Jan' and L1 is null
+order by transaction_date desc;"""
 
-# # Load data into Pandas DataFrame
-# df_mh = pd.read_sql(query_mh, conn)
+# Load data into Pandas DataFrame
+df_mh = pd.read_sql(query_mh, conn)
 
-# # Display the DataFrame using Streamlit
-# st.title('Snowflake Data Viewer')
-# st.write("Transaction data with missing hierarchy:")
-# st.dataframe(df_mh)
+# Display the DataFrame using Streamlit
+st.title('Record with Missing Hierarchy')
+st.write("Transaction data with missing hierarchy:")
+st.dataframe(df_mh)
 
 
 
