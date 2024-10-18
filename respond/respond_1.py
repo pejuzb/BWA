@@ -169,7 +169,7 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
-    edited_df['LOAD_DATETIME'] = pd.Timestamp(datetime.now())
+    edited_df['LOAD_DATETIME'] = datetime.now()
     insert_data(edited_df)
 
 
