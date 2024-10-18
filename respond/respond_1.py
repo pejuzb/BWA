@@ -171,10 +171,11 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
     # Convert to a timezone-aware datetime object (UTC for Snowflake LTZ)
-    utc_time = pd.to_datetime(datetime.now(pytz.UTC))
+    #utc_time = pd.to_datetime(datetime.now(pytz.UTC))
+    utc_time_str = datetime.now(pytz.UTC).strftime('%Y-%m-%d %H:%M:%S.%f %Z')
     # Add the datetime to the DataFrame
-    edited_df['LOAD_DATETIME'] = utc_time
-    st.write(utc_time)
+    edited_df['LOAD_DATETIME'] = utc_time_str
+    st.write(utc_time_str)
     insert_data(edited_df)
 
 
