@@ -8,6 +8,7 @@ import snowflake.connector
 import pandas as pd
 from snowflake.connector.pandas_tools import write_pandas
 load_dotenv()
+from datetime import datetime
 
 # Azure Key Vault
 client_id = os.getenv('AZURE_CLIENT_ID')
@@ -138,8 +139,8 @@ def load_data():
         b.L1,
         b.L2,
         b.L3,
-        'Jan' as OWNER,
-        current_date() as LOAD_DATETIME
+        'Jan' as OWNER
+        --current_date() as LOAD_DATETIME
 
         from test as a
         left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
@@ -168,6 +169,7 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
+    edited_df['LOAD_DATETIME'] = pd.Timestamp(datetime.now())
     insert_data(edited_df)
 
 
