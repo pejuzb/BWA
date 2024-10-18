@@ -109,17 +109,19 @@ st.dataframe(df)
 
 
 
-# Query to fetch data from Snowflake
-query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Jan' and L1 is null
-order by transaction_date desc;"""
+# # Query to fetch data from Snowflake
+# query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Jan' and L1 is null
+# order by transaction_date desc;"""
 
-# Load data into Pandas DataFrame
-df_mh = pd.read_sql(query_mh, conn)
+# # Load data into Pandas DataFrame
+# df_mh = pd.read_sql(query_mh, conn)
 
-# Display the DataFrame using Streamlit
-st.title('Snowflake Data Viewer')
-st.write("Transaction data with missing hierarchy:")
-st.dataframe(df_mh)
+# # Display the DataFrame using Streamlit
+# st.title('Snowflake Data Viewer')
+# st.write("Transaction data with missing hierarchy:")
+# st.dataframe(df_mh)
+
+
 
 
 # Function to query data from Snowflake
@@ -138,7 +140,6 @@ def load_data():
         b.L2,
         b.L3,
         'Jan' as OWNER
-        --current_timestamp() as LOAD_DATETIME
 
         from test as a
         left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
@@ -164,9 +165,6 @@ df = load_data()
 # Display editable DataFrame
 st.write("### Editable Table")
 edited_df = st.data_editor(df, num_rows="dynamic")
-
-
-
 
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
