@@ -139,8 +139,8 @@ def load_data():
         b.L1,
         b.L2,
         b.L3,
-        'Jan' as OWNER,
-        CURRENT_TIMESTAMP() as LOAD_DATETIME
+        'Jan' as OWNER
+        --CURRENT_TIMESTAMP() as LOAD_DATETIME
 
         from test as a
         left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
@@ -169,6 +169,7 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
+    edited_df['LOAD_DATETIME']= datetime.now()
     insert_data(edited_df)
 
 
