@@ -174,6 +174,7 @@ if st.button("Insert Data into Snowflake"):
     utc_time = pd.to_datetime(datetime.now(pytz.UTC))
     # Add the datetime to the DataFrame
     edited_df['LOAD_DATETIME'] = utc_time
+    st.write(utc_time)
     insert_data(edited_df)
 
 
