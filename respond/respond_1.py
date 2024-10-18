@@ -9,6 +9,7 @@ import pandas as pd
 from snowflake.connector.pandas_tools import write_pandas
 load_dotenv()
 from datetime import datetime
+import pytz  # Importing pytz for timezone handling
 
 # Azure Key Vault
 client_id = os.getenv('AZURE_CLIENT_ID')
@@ -169,7 +170,10 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
-    edited_df['LOAD_DATETIME'] = datetime.now()
+    # Convert to a timezone-aware datetime object (UTC for Snowflake LTZ)
+    utc_time = pd.to_datetime(datetime.now(pytz.UTC))
+    # Add the datetime to the DataFrame
+    edited_df['LOAD_DATETIME'] = utc_time
     insert_data(edited_df)
 
 
