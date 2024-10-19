@@ -13,6 +13,5 @@ streamlit-aggrid
 datetime
 pytz
 streamlit-aggrid
-matplotlib.pyplot
-matplotlib.ticker
+matplotlib
 seaborn
