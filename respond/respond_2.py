@@ -80,7 +80,7 @@ data_chart = pd.read_sql("""Select
     REPORTING_DATE,
     L1,
     ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
-    WHERE L1 <> 'TD Synnex'
+    WHERE L1 <> 'TD Synnex' and YEAR = 2024
     GROUP BY ALL;""", conn)
 
 # Display the DataFrame using Streamlit
@@ -88,7 +88,7 @@ st.title('Snowflake Data Viewer')
 st.write("Monthly expenses:")
 st.dataframe(data_chart)
 
-st.bar_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1", horizontal=True)
+st.bar_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1", horizontal=False)
 
 #st.bar_chart(df_filtered, x="YEAR", y="AMOUNT", color="L1", stack=False)
 
