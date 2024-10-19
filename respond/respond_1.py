@@ -177,28 +177,32 @@ if st.button("Insert Data into Snowflake"):
     insert_data(edited_df)
 
 
-
-
-
 def export_csv():
     try:
-         # Create a blob service client using the connection string
+        # Create a blob service client using the connection string or account URL
         blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
 
-        # Create a blob client
-        blob_client = blob_service_client.get_container_client(container='snfdb',blob='test.csv')
+        # Create a container client for the specified container (without the 'blob' argument)
+        container_client = blob_service_client.get_container_client('snfdb')
+
+        # Create a blob client for the specific blob (file) you want to upload
+        blob_client = container_client.get_blob_client('test.csv')
+
+        # Convert DataFrame to CSV in memory
         csv_buffer = StringIO()
         df_mh.to_csv(csv_buffer, index=False)
 
+        # Upload the CSV to Azure Blob Storage
         blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
 
+        print("CSV exported successfully!")
+        
     except Exception as e:
-        st.write(f"Error exporting data: {e}")
+        print(f"Error exporting data: {e}")
 
 
 if st.button("Export CSV"):
     export_csv()
-    st.write("Data exported successfully!")
 
 
 # Close the cursor and connection
