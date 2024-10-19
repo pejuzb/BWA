@@ -12,6 +12,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder  #add import for GridOptionsBui
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.ticker as ticker
+import altair as alt
 
 
 # Azure Key Vault
@@ -97,6 +98,25 @@ st.bar_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1", horizontal=
     # x=["REPORTING_DATE","L1"],
     # y="AMOUNT")
 
+
+# Create an Altair bar chart
+chart = alt.Chart(data_chart).mark_bar(size=20).encode(
+    x='REPORTING_DATE:T',
+    y='AMOUNT:Q',
+    color='L1:N'
+).properties(
+    width=700,  # Set the width of the chart
+    height=400  # Set the height of the chart
+).configure_axis(
+    labelFontSize=12,  # Adjust axis label size
+    titleFontSize=14,  # Adjust axis title size
+).configure_legend(
+    titleFontSize=14,  # Adjust legend title size
+    labelFontSize=12   # Adjust legend label size
+)
+
+# Display the chart in Streamlit
+st.altair_chart(chart, use_container_width=True)
 
 # Close the cursor and connection
 cur.close()
