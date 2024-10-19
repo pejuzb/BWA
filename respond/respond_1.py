@@ -158,7 +158,6 @@ def insert_data(df):
     success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
     if success:
         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
-        time.sleep(5)
         st.experimental_set_query_params()
     else:
         st.error("Failed to insert data.")
