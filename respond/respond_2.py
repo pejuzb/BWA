@@ -64,9 +64,9 @@ data_chart = data.groupby(['L1', 'REPORTING_DATE'])['AMOUNT'].sum()
 AgGrid(data_chart, height=800)
 
 st.bar_chart(
-    data_chart, 
-    x=["REPORTING_DATE","L1"],
-    y="AMOUNT")
+    # data_chart, 
+    # x=["REPORTING_DATE","L1"],
+    # y="AMOUNT")
 
 
 # Close the cursor and connection
