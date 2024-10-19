@@ -9,6 +9,10 @@ import pandas as pd
 from snowflake.connector.pandas_tools import write_pandas
 load_dotenv()
 from st_aggrid import AgGrid, GridOptionsBuilder  #add import for GridOptionsBuilder
+import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.ticker as ticker
+
 
 # Azure Key Vault
 client_id = os.getenv('AZURE_CLIENT_ID')
@@ -55,13 +59,39 @@ st.title('Snowflake Data Viewer')
 st.write("Here is the data from Snowflake:")
 st.dataframe(data)
 
+#AgGrid(data, height=400)
 
-AgGrid(data, height=800)
 
+# Filter out rows where L1 is 'TD Synnex'
+df_filtered = data[data['L1'] != 'TD Synnex']
 
-data_chart = data.groupby(['L1', 'REPORTING_DATE'])['AMOUNT'].sum()
+# Group by L1 and month, and sum the amounts
+monthly_expenses = df_filtered.groupby(['L1', 'year', 'month'])['amount'].sum().unstack(level=0)
 
-AgGrid(data_chart, height=800)
+# Take absolute values of sums
+monthly_expenses = monthly_expenses.abs()
+
+# Plot the data as a stacked bar chart
+plt.figure(figsize=(12, 8))  # Increase the figure size for better readability
+ax = monthly_expenses.plot(kind='bar', stacked=True, ax=plt.gca(), width=0.8)  # Increase the width of bars for better visibility
+
+plt.title('Monthly Expenses by L1 Category', fontsize=16)  # Increase title font size
+plt.xlabel('Year-Month', fontsize=14)  # Increase x-axis label font size
+plt.ylabel('Total Amount', fontsize=14)  # Increase y-axis label font size
+plt.xticks(rotation=45, ha='right', fontsize=10)  # Rotate x-axis labels for better readability and adjust font size
+
+# Add thousand separators to y-axis labels
+formatter = ticker.StrMethodFormatter('{x:,.0f}')
+plt.gca().yaxis.set_major_formatter(formatter)
+
+# Add horizontal gridlines with increased transparency
+plt.grid(axis='y', linestyle='--', alpha=0.5)
+
+# Move legend to the bottom horizontally with increased font size and number of columns
+plt.legend(title='L1 Category', bbox_to_anchor=(0.5, -0.2), loc='upper center', ncol=len(monthly_expenses.columns), fontsize=10)
+
+plt.tight_layout()
+plt.show()
 
 #st.bar_chart(
     # data_chart, 
