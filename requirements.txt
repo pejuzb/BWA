@@ -12,4 +12,3 @@ pandas
 streamlit-aggrid
 datetime
 pytz
-io
