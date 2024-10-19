@@ -170,6 +170,7 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
     edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
+    edited_df = edited_df[edited_df['L1'].notnull()]
     insert_data(edited_df)
 
 # Close the cursor and connection
