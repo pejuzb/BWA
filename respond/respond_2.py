@@ -77,6 +77,8 @@ st.title('Snowflake Data Viewer')
 st.write("Monthly expenses:")
 st.dataframe(monthly_expenses)
 
+st.bar_chart(monthly_expenses, x="REPORTING_DATE", y="AMOUNT", color="L1", horizontal=True)
+
 
 #st.bar_chart(
     # data_chart, 
