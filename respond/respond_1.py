@@ -11,6 +11,7 @@ load_dotenv()
 from datetime import datetime
 import pytz  # Importing pytz for timezone handling
 import time
+from io import StringIO
 
 # Azure Key Vault
 client_id = os.getenv('AZURE_CLIENT_ID')
@@ -174,6 +175,31 @@ if st.button("Insert Data into Snowflake"):
     edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
     edited_df = edited_df[edited_df['L1'].notnull()]
     insert_data(edited_df)
+
+
+
+
+
+def export_csv():
+    try:
+         # Create a blob service client using the connection string
+        blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+
+        # Create a blob client
+        blob_client = blob_service_client.get_container_client(container='snfdb',blob='test.csv')
+        csv_buffer = StringIO()
+        df_mh.to_csv(csv_buffer, index=False)
+
+        blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+
+    except Exception as e:
+        st.write(f"Error exporting data: {e}")
+
+
+if st.button("Export CSV"):
+    export_csv()
+    st.write("Data exported successfully!")
+
 
 # Close the cursor and connection
 cur.close()
