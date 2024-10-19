@@ -62,22 +62,24 @@ st.dataframe(data)
 #AgGrid(data, height=400)
 
 
-# # Filter out rows where L1 is 'TD Synnex'
-# df_filtered = data[data['L1'] != 'TD Synnex']
+# Filter out rows where L1 is 'TD Synnex'
+df_filtered = data[data['L1'] != 'TD Synnex']
 
 
 
-# #Group by L1 and month, and sum the amounts
-# monthly_expenses = df_filtered.groupby(['L1', 'YEAR', 'MONTH', 'REPORTING_DATE'])['AMOUNT'].sum().unstack(level=0)
+#Group by L1 and month, and sum the amounts
+monthly_expenses = df_filtered.groupby(['L1','REPORTING_DATE'])['AMOUNT'].sum()
 
-# # Take absolute values of sums
-# monthly_expenses = monthly_expenses.abs()
+# Take absolute values of sums
+monthly_expenses = monthly_expenses.abs()
+
+st.dataframe(monthly_expenses)
 
 
 data_chart = pd.read_sql("""Select 
     REPORTING_DATE,
     L1,
-    ABS(SUM(AMOUNT)) FROM BUDGET.MART.BUDGET
+    ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
     WHERE L1 <> 'TD Synnex'
     GROUP BY ALL;""", conn)
 
