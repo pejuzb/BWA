@@ -66,7 +66,7 @@ st.dataframe(data)
 df_filtered = data[data['L1'] != 'TD Synnex']
 
 # Group by L1 and month, and sum the amounts
-monthly_expenses = df_filtered.groupby(['L1', 'year', 'month'])['amount'].sum().unstack(level=0)
+monthly_expenses = df_filtered.groupby(['L1', 'YEAR', 'MONTH'])['AMOUNT'].sum().unstack(level=0)
 
 # Take absolute values of sums
 monthly_expenses = monthly_expenses.abs()
