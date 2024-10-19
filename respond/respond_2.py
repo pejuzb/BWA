@@ -65,21 +65,23 @@ st.dataframe(data)
 # Filter out rows where L1 is 'TD Synnex'
 df_filtered = data[data['L1'] != 'TD Synnex']
 
-# Group by L1 and month, and sum the amounts
-# monthly_expenses = df_filtered.groupby(['L1', 'YEAR', 'MONTH', 'REPORTING_DATE'])['AMOUNT'].sum().unstack(level=0)
 
-# # Take absolute values of sums
-# monthly_expenses = monthly_expenses.abs()
+
+#Group by L1 and month, and sum the amounts
+monthly_expenses = df_filtered.groupby(['L1', 'YEAR', 'MONTH', 'REPORTING_DATE'])['AMOUNT'].sum().unstack(level=0)
+
+# Take absolute values of sums
+monthly_expenses = monthly_expenses.abs()
 
 
 # Display the DataFrame using Streamlit
 st.title('Snowflake Data Viewer')
 st.write("Monthly expenses:")
-#st.dataframe(monthly_expenses)
+st.dataframe(monthly_expenses)
 
-st.bar_chart(df_filtered, x="REPORTING_DATE", y="AMOUNT", color="L1", horizontal=True)
+#st.bar_chart(df_filtered, x="REPORTING_DATE", y="AMOUNT", color="L1", horizontal=True)
 
-st.bar_chart(df_filtered, x="YEAR", y="AMOUNT", color="L1", stack=False)
+#st.bar_chart(df_filtered, x="YEAR", y="AMOUNT", color="L1", stack=False)
 
 #st.bar_chart(
     # data_chart, 
