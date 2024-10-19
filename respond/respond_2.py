@@ -72,16 +72,16 @@ monthly_expenses = monthly_expenses.abs()
 #st.dataframe(monthly_expenses)
 
 
-# data_chart = pd.read_sql("""Select 
-#     REPORTING_DATE,
-#     L1,
-#     ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
-#     WHERE L1 <> 'TD Synnex' and YEAR = 2024
-#     GROUP BY ALL;""", conn)
+data_chart = pd.read_sql("""Select 
+    REPORTING_DATE,
+    L1,
+    ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
+    WHERE L1 <> 'TD Synnex' and YEAR = 2024
+    GROUP BY ALL;""", conn)
 
 
 # Create an Altair bar chart
-chart = alt.Chart(monthly_expenses).mark_bar(size=30).encode(
+chart = alt.Chart(data_chart).mark_bar(size=30).encode(
     x='REPORTING_DATE:T',
     y='AMOUNT:Q',
     color='L1:N'
