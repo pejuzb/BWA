@@ -66,32 +66,17 @@ st.dataframe(data)
 df_filtered = data[data['L1'] != 'TD Synnex']
 
 # Group by L1 and month, and sum the amounts
-monthly_expenses = df_filtered.groupby(['L1', 'YEAR', 'MONTH'])['AMOUNT'].sum().unstack(level=0)
+monthly_expenses = df_filtered.groupby(['L1', 'YEAR', 'MONTH', 'REPORTING_DATE'])['AMOUNT'].sum().unstack(level=0)
 
 # Take absolute values of sums
 monthly_expenses = monthly_expenses.abs()
 
-# Plot the data as a stacked bar chart
-plt.figure(figsize=(12, 8))  # Increase the figure size for better readability
-ax = monthly_expenses.plot(kind='bar', stacked=True, ax=plt.gca(), width=0.8)  # Increase the width of bars for better visibility
 
-plt.title('Monthly Expenses by L1 Category', fontsize=16)  # Increase title font size
-plt.xlabel('Year-Month', fontsize=14)  # Increase x-axis label font size
-plt.ylabel('Total Amount', fontsize=14)  # Increase y-axis label font size
-plt.xticks(rotation=45, ha='right', fontsize=10)  # Rotate x-axis labels for better readability and adjust font size
+# Display the DataFrame using Streamlit
+st.title('Snowflake Data Viewer')
+st.write("Monthly expenses:")
+st.dataframe(monthly_expenses)
 
-# Add thousand separators to y-axis labels
-formatter = ticker.StrMethodFormatter('{x:,.0f}')
-plt.gca().yaxis.set_major_formatter(formatter)
-
-# Add horizontal gridlines with increased transparency
-plt.grid(axis='y', linestyle='--', alpha=0.5)
-
-# Move legend to the bottom horizontally with increased font size and number of columns
-plt.legend(title='L1 Category', bbox_to_anchor=(0.5, -0.2), loc='upper center', ncol=len(monthly_expenses.columns), fontsize=10)
-
-plt.tight_layout()
-plt.show()
 
 #st.bar_chart(
     # data_chart, 
