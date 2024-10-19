@@ -157,6 +157,7 @@ def insert_data(df):
     success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
     if success:
         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
+        st.experimental_rerun()
     else:
         st.error("Failed to insert data.")
 
@@ -176,3 +177,6 @@ if st.button("Insert Data into Snowflake"):
 # Close the cursor and connection
 cur.close()
 conn.close()
+
+
+
