@@ -141,7 +141,6 @@ def load_data():
         b.L2,
         b.L3,
         'Jan' as OWNER
-        --TO_CHAR(current_timestamp, 'YYYY-MM-DD HH24:MI:SS')  as LOAD_DATETIME
 
         from test as a
         left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
@@ -172,39 +171,6 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 if st.button("Insert Data into Snowflake"):
     edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
     insert_data(edited_df)
-
-
-
-# # Query to fetch data from Snowflake
-# query_missing = """with test as (
-# Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
-# where a.owner = 'Jan'
-# )
-
-# Select
-# a.source_system,
-# MD5(a.prod_hierarchy) as HIERARCHY_HK,
-# a.prod_hierarchy as PROD_HIERARCHY_ID,
-# b.L1,
-# b.L2,
-# b.L3,
-# 'Jan' as OWNER,
-# current_date() as LOAD_DATETIME
-
-# from test as a
-# left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
-# on a.prod_hierarchy = b.prod_hierarchy_id
-# where HIERARCHY_HK is null
-# order by 1,2"""
-
-# # Load data into Pandas DataFrame
-# df_miss = pd.read_sql(query_missing, conn)
-
-# # Display the DataFrame using Streamlit
-# st.title('Snowflake Missing Hierarchy')
-# st.write("Here is the data Missing in Hierarchy:")
-# st.dataframe(df_miss)
-
 
 # Close the cursor and connection
 cur.close()
