@@ -56,10 +56,7 @@ st.write("Here is the data from Snowflake:")
 st.dataframe(data)
 
 
-
-AgGrid(data, height=400)
-
-
+AgGrid(data, height=800)
 
 
 # Close the cursor and connection
