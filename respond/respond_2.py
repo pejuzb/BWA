@@ -64,55 +64,36 @@ st.dataframe(data)
 
 
 # Filter out rows where L1 is 'TD Synnex'
-df_filtered = data[data['L1'] != 'TD Synnex']
-
-
-
+df_filtered = data[(data['L1'] != 'TD Synnex') & (data['YEAR'] == 2024)]
 #Group by L1 and month, and sum the amounts
 monthly_expenses = df_filtered.groupby(['L1','REPORTING_DATE'])['AMOUNT'].sum()
-
 # Take absolute values of sums
 monthly_expenses = monthly_expenses.abs()
+#st.dataframe(monthly_expenses)
 
-st.dataframe(monthly_expenses)
 
-
-data_chart = pd.read_sql("""Select 
-    REPORTING_DATE,
-    L1,
-    ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
-    WHERE L1 <> 'TD Synnex' and YEAR = 2024
-    GROUP BY ALL;""", conn)
-
-# Display the DataFrame using Streamlit
-st.title('Snowflake Data Viewer')
-st.write("Monthly expenses:")
-st.dataframe(data_chart)
-
-st.bar_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1", horizontal=False)
-
-#st.bar_chart(df_filtered, x="YEAR", y="AMOUNT", color="L1", stack=False)
-
-#st.bar_chart(
-    # data_chart, 
-    # x=["REPORTING_DATE","L1"],
-    # y="AMOUNT")
+# data_chart = pd.read_sql("""Select 
+#     REPORTING_DATE,
+#     L1,
+#     ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
+#     WHERE L1 <> 'TD Synnex' and YEAR = 2024
+#     GROUP BY ALL;""", conn)
 
 
 # Create an Altair bar chart
-chart = alt.Chart(data_chart).mark_bar(size=20).encode(
+chart = alt.Chart(monthly_expenses).mark_bar(size=30).encode(
     x='REPORTING_DATE:T',
     y='AMOUNT:Q',
     color='L1:N'
 ).properties(
-    width=700,  # Set the width of the chart
+    width=800,  # Set the width of the chart
     height=400  # Set the height of the chart
 ).configure_axis(
-    labelFontSize=12,  # Adjust axis label size
-    titleFontSize=14,  # Adjust axis title size
+    labelFontSize=14,  # Adjust axis label size
+    titleFontSize=16,  # Adjust axis title size
 ).configure_legend(
-    titleFontSize=14,  # Adjust legend title size
-    labelFontSize=12   # Adjust legend label size
+    titleFontSize=16,  # Adjust legend title size
+    labelFontSize=14   # Adjust legend label size
 )
 
 # Display the chart in Streamlit
