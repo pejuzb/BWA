@@ -10,6 +10,7 @@ from snowflake.connector.pandas_tools import write_pandas
 load_dotenv()
 from datetime import datetime
 import pytz  # Importing pytz for timezone handling
+import time
 
 # Azure Key Vault
 client_id = os.getenv('AZURE_CLIENT_ID')
@@ -157,7 +158,8 @@ def insert_data(df):
     success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
     if success:
         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
-        st.experimental_rerun()
+        time.sleep(5)
+        st.experimental_set_query_params()
     else:
         st.error("Failed to insert data.")
 
