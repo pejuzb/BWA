@@ -170,12 +170,6 @@ df = load_data()
 st.write("### Editable Table")
 edited_df = st.data_editor(df, num_rows="dynamic")
 
-# Button to insert updated data
-if st.button("Insert Data into Snowflake"):
-    edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
-    edited_df = edited_df[edited_df['L1'].notnull()]
-    insert_data(edited_df)
-
 
 def export_csv():
     try:
@@ -186,22 +180,33 @@ def export_csv():
         container_client = blob_service_client.get_container_client('snfdb')
 
         # Create a blob client for the specific blob (file) you want to upload
-        blob_client = container_client.get_blob_client('test.csv')
+        blob_client = container_client.get_blob_client('azure_export_oco.csv')
+
+
+        # Query to fetch data from Snowflake
+        query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan'"
+
+        # Load data into Pandas DataFrame
+        df_H = pd.read_sql(query_hier, conn)
 
         # Convert DataFrame to CSV in memory
         csv_buffer = StringIO()
-        df_mh.to_csv(csv_buffer, index=False)
+        df_H.to_csv(csv_buffer, index=False)
 
         # Upload the CSV to Azure Blob Storage
         blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
 
-        print("CSV exported successfully!")
+        st.write("CSV exported successfully!")
         
     except Exception as e:
-        print(f"Error exporting data: {e}")
+        st.write(f"Error exporting data: {e}")
 
 
-if st.button("Export CSV"):
+# Button to insert updated data
+if st.button("Insert Data into Snowflake"):
+    edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
+    edited_df = edited_df[edited_df['L1'].notnull()]
+    insert_data(edited_df)
     export_csv()
 
 
