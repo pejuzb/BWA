@@ -8,10 +8,7 @@ import snowflake.connector
 import pandas as pd
 from snowflake.connector.pandas_tools import write_pandas
 load_dotenv()
-from datetime import datetime
-import pytz  # Importing pytz for timezone handling
-import time
-from io import StringIO
+from st_aggrid import AgGrid, GridOptionsBuilder  #add import for GridOptionsBuilder
 
 # Azure Key Vault
 client_id = os.getenv('AZURE_CLIENT_ID')
@@ -51,12 +48,18 @@ cur = conn.cursor()
 query = "Select * from BUDGET.MART.BUDGET where owner = 'Peter'"
 
 # Load data into Pandas DataFrame
-df = pd.read_sql(query, conn)
+data = pd.read_sql(query, conn)
 
 # Display the DataFrame using Streamlit
 st.title('Snowflake Data Viewer')
 st.write("Here is the data from Snowflake:")
-st.dataframe(df)
+st.dataframe(data)
+
+
+
+AgGrid(data, height=400)
+
+
 
 
 # Close the cursor and connection
