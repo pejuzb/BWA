@@ -189,6 +189,10 @@ def export_csv():
         # Load data into Pandas DataFrame
         df_H = pd.read_sql(query_hier, conn)
 
+        if df_H.empty:
+            st.write("No data to export. The DataFrame is empty.")
+            return  # This terminates the process if no data is available
+
         # Convert DataFrame to CSV in memory
         csv_buffer = StringIO()
         df_H.to_csv(csv_buffer, index=False)
