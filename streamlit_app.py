@@ -66,7 +66,7 @@ def logout():
 role = st.session_state.role
 
 logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
-settings = st.Page("settings.py", title="Settings", icon=":material/settings:")
+#settings = st.Page("settings.py", title="Settings", icon=":material/settings:")
 
 request_1 = st.Page(
     "request/request_1.py",
@@ -88,13 +88,13 @@ respond_2 = st.Page(
 )
 admin_1 = st.Page(
     "admin/admin_1.py",
-    title="Admin 1",
+    title="Files Upload / Hierarchy",
     icon=":material/person_add:",
     default=(role == "Admin"),
 )
-admin_2 = st.Page("admin/admin_2.py", title="Admin 2", icon=":material/security:")
+admin_2 = st.Page("admin/admin_2.py", title="Report View", icon=":material/security:")
 
-account_pages = [logout_page, settings]
+account_pages = [logout_page]
 #request_pages = [request_1, request_2]
 respond_pages = [respond_1, respond_2]
 admin_pages = [admin_1, admin_2]
@@ -108,7 +108,7 @@ page_dict = {}
 if st.session_state.role in ["Responder", "Admin"]:
     page_dict["Jan's Budget"] = respond_pages
 if st.session_state.role == "Admin":
-    page_dict["Admin"] = admin_pages
+    page_dict["Peter's Budget"] = admin_pages
 
 if len(page_dict) > 0:
     pg = st.navigation({"Account": account_pages} | page_dict)
