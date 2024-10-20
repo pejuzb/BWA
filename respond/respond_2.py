@@ -82,11 +82,11 @@ data_chart = pd.read_sql("""Select
 
 # Create an Altair bar chart
 chart = alt.Chart(data_chart).mark_bar(size=25).encode(
-    x='MONTH:T',
-    y='REPORTING_DATE:Q',
+    x='REPORTING_DATE:T',
+    y='AMOUNT:Q',
     color='L1:N'
 ).properties(
-    width=700,  # Set the width of the chart
+    width=600,  # Set the width of the chart
     height=400  # Set the height of the chart
 ).configure_axis(
     labelFontSize=14,  # Adjust axis label size
