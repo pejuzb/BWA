@@ -79,12 +79,12 @@ request_2 = st.Page(
 )
 respond_1 = st.Page(
     "respond/respond_1.py",
-    title="Respond 1",
-    icon=":material/healing:",
+    title="Files Upload / Hierarchy",
+    icon=":material/floppy_disk:",
     default=(role == "Responder"),
 )
 respond_2 = st.Page(
-    "respond/respond_2.py", title="Respond 2", icon=":material/handyman:"
+    "respond/respond_2.py", title="Report View", icon=":material/bar_chart:"
 )
 admin_1 = st.Page(
     "admin/admin_1.py",
@@ -106,7 +106,7 @@ page_dict = {}
 #if st.session_state.role in ["Requester", "Admin"]:
 #    page_dict["Request"] = request_pages
 if st.session_state.role in ["Responder", "Admin"]:
-    page_dict["Respond"] = respond_pages
+    page_dict["Jan's Budget"] = respond_pages
 if st.session_state.role == "Admin":
     page_dict["Admin"] = admin_pages
 
