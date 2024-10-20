@@ -139,9 +139,9 @@ st.altair_chart(chart_2, use_container_width=True)
 
 
 
-st.line_chart(chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
+st.line_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
 
-
+st.area_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
 
 # Close the cursor and connection
 cur.close()
