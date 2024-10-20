@@ -56,9 +56,7 @@ query = "Select * from BUDGET.MART.BUDGET where owner = 'Peter'"
 data = pd.read_sql(query, conn)
 
 # Display the DataFrame using Streamlit
-st.title('Snowflake Data Viewer')
-st.write("Here is the data from Snowflake:")
-st.dataframe(data)
+st.title('Peters Budget Data Viewer')
 
 #AgGrid(data, height=400)
 
@@ -138,10 +136,11 @@ chart_2 = alt.Chart(data_chart_2).mark_bar(size = 25).encode(
 st.altair_chart(chart_2, use_container_width=True)
 
 
-
 st.line_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
 
-st.area_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
+st.write("Here is the raw data from Snowflake:")
+st.dataframe(data)
+
 
 # Close the cursor and connection
 cur.close()
