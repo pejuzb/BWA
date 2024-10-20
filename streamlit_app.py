@@ -80,11 +80,11 @@ request_2 = st.Page(
 respond_1 = st.Page(
     "respond/respond_1.py",
     title="Files Upload / Hierarchy",
-    icon=":material/floppy_disk:",
+    icon=":material/healing:",
     default=(role == "Responder"),
 )
 respond_2 = st.Page(
-    "respond/respond_2.py", title="Report View", icon=":material/bar_chart:"
+    "respond/respond_2.py", title="Report View", icon=":material/handyman:"
 )
 admin_1 = st.Page(
     "admin/admin_1.py",
