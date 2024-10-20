@@ -95,7 +95,7 @@ admin_1 = st.Page(
 admin_2 = st.Page("admin/admin_2.py", title="Admin 2", icon=":material/security:")
 
 account_pages = [logout_page, settings]
-request_pages = [request_1, request_2]
+#request_pages = [request_1, request_2]
 respond_pages = [respond_1, respond_2]
 admin_pages = [admin_1, admin_2]
 
@@ -103,8 +103,8 @@ admin_pages = [admin_1, admin_2]
 st.logo("images/horizontal_blue.png", icon_image="images/new_logo.png")
 
 page_dict = {}
-if st.session_state.role in ["Requester", "Admin"]:
-    page_dict["Request"] = request_pages
+#if st.session_state.role in ["Requester", "Admin"]:
+#    page_dict["Request"] = request_pages
 if st.session_state.role in ["Responder", "Admin"]:
     page_dict["Respond"] = respond_pages
 if st.session_state.role == "Admin":
