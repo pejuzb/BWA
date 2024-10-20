@@ -105,32 +105,32 @@ st.altair_chart(chart, use_container_width=True)
 
 
 
-data_chart_2 = pd.read_sql("""Select 
-    REPORTING_DATE,
-    SUM(AMOUNT) as AMOUNT FROM BUDGET.MART.BUDGET
-    WHERE YEAR = YEAR(current_date) and OWNER = 'Peter' 
-    GROUP BY ALL;""", conn)
+# data_chart_2 = pd.read_sql("""Select 
+#     REPORTING_DATE,
+#     SUM(AMOUNT) as AMOUNT FROM BUDGET.MART.BUDGET
+#     WHERE YEAR = YEAR(current_date) and OWNER = 'Peter' 
+#     GROUP BY ALL;""", conn)
 
 
-# Add a color column based on the AMOUNT value
-data_chart_2['color'] = data_chart_2['AMOUNT'].apply(lambda x: 'green' if x > 0 else 'red')
+# # Add a color column based on the AMOUNT value
+# data_chart_2['color'] = data_chart_2['AMOUNT'].apply(lambda x: 'green' if x > 0 else 'red')
 
-# Create an Altair bar chart
-chart_2 = alt.Chart(data_chart_2).mark_bar().encode(
-    x='REPORTING_DATE:T',
-    y='AMOUNT:Q',
-    color=alt.condition(
-        alt.datum.AMOUNT > 0,  # Condition for positive values
-        alt.value('green'),     # Color if condition is true
-        alt.value('red')        # Color if condition is false
-    )
-).properties(
-    width=600,
-    height=400
-)
+# # Create an Altair bar chart
+# chart_2 = alt.Chart(data_chart_2).mark_bar().encode(
+#     x='REPORTING_DATE:T',
+#     y='AMOUNT:Q',
+#     color=alt.condition(
+#         alt.datum.AMOUNT > 0,  # Condition for positive values
+#         alt.value('green'),     # Color if condition is true
+#         alt.value('red')        # Color if condition is false
+#     )
+# ).properties(
+#     width=600,
+#     height=400
+# )
 
-# Display the chart in Streamlit
-st.altair_chart(chart_2, use_container_width=True)
+# # Display the chart in Streamlit
+# st.altair_chart(chart_2, use_container_width=True)
 
 
 
