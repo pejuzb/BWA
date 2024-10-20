@@ -86,8 +86,8 @@ chart = alt.Chart(data_chart).mark_bar(size=25).encode(
     y='REPORTING_DATE:Q',
     color='L1:N'
 ).properties(
-    width=800,  # Set the width of the chart
-    height=600  # Set the height of the chart
+    width=700,  # Set the width of the chart
+    height=400  # Set the height of the chart
 ).configure_axis(
     labelFontSize=14,  # Adjust axis label size
     titleFontSize=16,  # Adjust axis title size
