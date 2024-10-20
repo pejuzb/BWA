@@ -73,7 +73,7 @@ monthly_expenses = monthly_expenses.abs()
 
 
 data_chart = pd.read_sql("""Select 
-    MONTH,
+    REPORTING_DATE,
     L1,
     ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
     WHERE L1 <> 'TD Synnex' and YEAR = YEAR(current_date) and OWNER = 'Peter' 
@@ -83,11 +83,11 @@ data_chart = pd.read_sql("""Select
 # Create an Altair bar chart
 chart = alt.Chart(data_chart).mark_bar(size=25).encode(
     x='MONTH:T',
-    y='AMOUNT:Q',
+    y='REPORTING_DATE:Q',
     color='L1:N'
 ).properties(
     width=800,  # Set the width of the chart
-    height=600  # Set the height of the chart
+    height=450  # Set the height of the chart
 ).configure_axis(
     labelFontSize=14,  # Adjust axis label size
     titleFontSize=16,  # Adjust axis title size
@@ -98,6 +98,43 @@ chart = alt.Chart(data_chart).mark_bar(size=25).encode(
 
 # Display the chart in Streamlit
 st.altair_chart(chart, use_container_width=True)
+
+
+
+
+
+
+
+data_chart_2 = pd.read_sql("""Select 
+    REPORTING_DATE,
+    SUM(AMOUNT) as AMOUNT FROM BUDGET.MART.BUDGET
+    WHERE YEAR = YEAR(current_date) and OWNER = 'Peter' 
+    GROUP BY ALL;""", conn)
+
+
+# Add a color column based on the AMOUNT value
+data_chart_2['color'] = data_chart_2['AMOUNT'].apply(lambda x: 'green' if x > 0 else 'red')
+
+# Create an Altair bar chart
+chart_2 = alt.Chart(data_chart_2).mark_bar().encode(
+    x='REPORTING_DATE:T',
+    y='AMOUNT:Q',
+    color=alt.condition(
+        alt.datum.AMOUNT > 0,  # Condition for positive values
+        alt.value('green'),     # Color if condition is true
+        alt.value('red')        # Color if condition is false
+    )
+).properties(
+    width=600,
+    height=400
+)
+
+# Display the chart in Streamlit
+st.altair_chart(chart_2, use_container_width=True)
+
+
+
+
 
 # Close the cursor and connection
 cur.close()
