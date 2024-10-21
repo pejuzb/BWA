@@ -50,13 +50,13 @@ conn = snowflake.connector.connect(
 cur = conn.cursor()
 
 # Query to fetch data from Snowflake
-query = "Select * from BUDGET.MART.BUDGET where owner = 'Peter'"
+query = "Select * from BUDGET.MART.BUDGET where owner = 'Jan'"
 
 # Load data into Pandas DataFrame
 data = pd.read_sql(query, conn)
 
 # Display the DataFrame using Streamlit
-st.title('Peters Budget Data Viewer')
+st.title('Jans Budget Data Viewer')
 #AgGrid(data, height=400)
 
 
@@ -70,12 +70,12 @@ st.title('Peters Budget Data Viewer')
 
 
 with st.container(border=True):
-    st.write("This is inside the container")  
+    #st.write("This is inside the container")  
     data_chart = pd.read_sql("""Select 
         REPORTING_DATE,
         L1,
         ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE L1 <> 'TD Synnex' and YEAR = YEAR(current_date) and OWNER = 'Peter' 
+        WHERE L1 <> 'TD Synnex' and YEAR = YEAR(current_date) and OWNER = 'Jan' 
         GROUP BY ALL;""", conn)
     
     
@@ -101,12 +101,12 @@ with st.container(border=True):
 
 
 with st.container(border=True):
-    st.write("This is inside the container")  
+    #st.write("This is inside the container")  
 
     data_chart_2 = pd.read_sql("""Select 
         REPORTING_DATE,
         SUM(AMOUNT) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE YEAR = YEAR(current_date) and OWNER = 'Peter' 
+        WHERE YEAR = YEAR(current_date) and OWNER = 'Jan' 
         GROUP BY ALL;""", conn)
     
     
@@ -140,7 +140,7 @@ with st.container(border=True):
 with st.container(border=True):
     st.line_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
 
-st.write("Here is the raw data from Snowflake:")
+#st.write("Here is the raw data from Snowflake:")
 st.dataframe(data)
 
 
