@@ -75,7 +75,7 @@ with st.container(border=True):
         REPORTING_DATE,
         L1,
         ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE L1 <> 'TD Synnex' and YEAR = YEAR(current_date) and OWNER = 'Jan' 
+        WHERE L1 <> 'Prijem' and YEAR = YEAR(current_date) and OWNER = 'Jan' 
         GROUP BY ALL;""", conn)
     
     
