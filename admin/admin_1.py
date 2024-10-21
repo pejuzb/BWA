@@ -133,6 +133,42 @@ st.dataframe(df_mh)
 
 
 
+def export_csv():
+    try:
+        # Create a blob service client using the connection string or account URL
+        blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+
+        # Create a container client for the specified container (without the 'blob' argument)
+        container_client = blob_service_client.get_container_client('snfdb')
+
+        # Create a blob client for the specific blob (file) you want to upload
+        blob_client = container_client.get_blob_client('azure_export_peter.csv')
+
+
+        # Query to fetch data from Snowflake
+        query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
+
+        # Load data into Pandas DataFrame
+        df_H = pd.read_sql(query_hier, conn)
+
+        if df_H.empty:
+            st.write("No data to export. The DataFrame is empty.")
+            return  # This terminates the process if no data is available
+
+        # Convert DataFrame to CSV in memory
+        csv_buffer = StringIO()
+        df_H.to_csv(csv_buffer, index=False)
+
+        # Upload the CSV to Azure Blob Storage
+        blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+
+        st.write("CSV exported successfully!")
+        
+    except Exception as e:
+        st.write(f"Error exporting data: {e}")
+
+
+
 # Function to query data from Snowflake
 @st.cache_data  # Caches the data to avoid querying every time
 def load_data():
@@ -175,42 +211,6 @@ df = load_data()
 # Display editable DataFrame
 st.write("### Editable Table")
 edited_df = st.data_editor(df, num_rows="dynamic")
-
-
-def export_csv():
-    try:
-        # Create a blob service client using the connection string or account URL
-        blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
-
-        # Create a container client for the specified container (without the 'blob' argument)
-        container_client = blob_service_client.get_container_client('snfdb')
-
-        # Create a blob client for the specific blob (file) you want to upload
-        blob_client = container_client.get_blob_client('azure_export_peter.csv')
-
-
-        # Query to fetch data from Snowflake
-        query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
-
-        # Load data into Pandas DataFrame
-        df_H = pd.read_sql(query_hier, conn)
-
-        if df_H.empty:
-            st.write("No data to export. The DataFrame is empty.")
-            return  # This terminates the process if no data is available
-
-        # Convert DataFrame to CSV in memory
-        csv_buffer = StringIO()
-        df_H.to_csv(csv_buffer, index=False)
-
-        # Upload the CSV to Azure Blob Storage
-        blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
-
-        st.write("CSV exported successfully!")
-        
-    except Exception as e:
-        st.write(f"Error exporting data: {e}")
-
 
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
