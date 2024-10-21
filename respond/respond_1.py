@@ -99,7 +99,7 @@ if st.button("Load files"):
 
 
 # Query to fetch data from Snowflake
-query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
+query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan'"
 
 # Load data into Pandas DataFrame
 df = pd.read_sql(query, conn)
@@ -113,7 +113,7 @@ st.dataframe(df)
 
 
 # Query to fetch data from Snowflake
-query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Peter' and L1 is null
+query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Jan' and L1 is null
 order by transaction_date desc;"""
 
 # Load data into Pandas DataFrame
@@ -132,7 +132,7 @@ st.dataframe(df_mh)
 def load_data():
         query = """with test as (
         Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
-        where a.owner = 'Peter'
+        where a.owner = 'Jan'
         )
 
         Select
@@ -142,10 +142,10 @@ def load_data():
         b.L1,
         b.L2,
         b.L3,
-        'Peter' as OWNER
+        'Jan' as OWNER
 
         from test as a
-        left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter') as b
+        left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan') as b
         on a.prod_hierarchy = b.prod_hierarchy_id
         where HIERARCHY_HK is null
         order by 1,2"""
@@ -180,11 +180,11 @@ def export_csv():
         container_client = blob_service_client.get_container_client('snfdb')
 
         # Create a blob client for the specific blob (file) you want to upload
-        blob_client = container_client.get_blob_client('azure_export_peter.csv')
+        blob_client = container_client.get_blob_client('azure_export_oco.csv')
 
 
         # Query to fetch data from Snowflake
-        query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
+        query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan'"
 
         # Load data into Pandas DataFrame
         df_H = pd.read_sql(query_hier, conn)
