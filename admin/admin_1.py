@@ -87,11 +87,8 @@ cur = conn.cursor()
 
 if st.button("Load files"):
     try:
-        cur.execute("TRUNCATE TABLE RAW.CSOB;")
-        cur.execute("TRUNCATE TABLE RAW.CSOB_SK;")
-        cur.execute("TRUNCATE TABLE RAW.REVOLUT;")
-        cur.execute("TRUNCATE TABLE RAW.REVOLUT_SK;")
-
+        cur.execute("call truncate_raw_tables();")
+       
         # Execute the stored procedures
         cur.execute("CALL COPY_FILES_TO_RAW_REVOLUT();")
         st.write("First stored procedure [REVOLUT] executed successfully!")
