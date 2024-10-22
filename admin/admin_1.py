@@ -224,6 +224,11 @@ if st.button("Insert Data into Snowflake"):
     insert_data(edited_df)
     export_csv()
 
+# Add a "Refresh Cache" button
+if st.button("Refresh Cache"):
+    st.cache_data.clear()  # Clear the cache
+    st.success("Cache cleared!")
+
 
 # Close the cursor and connection
 cur.close()
