@@ -85,7 +85,7 @@ conn = snowflake.connector.connect(
 
 cur = conn.cursor()
 
-if st.button("Load files"):
+if st.button("Recalculate Database"):
     try:
         cur.execute("call truncate_raw_tables();")
        

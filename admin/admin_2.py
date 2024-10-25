@@ -70,7 +70,7 @@ st.title('Peters Budget Data Viewer')
 
 
 with st.container(border=True):
-    #st.write("This is inside the container")  
+    st.write("Chart of Monthly Expenses (No Income Included)") 
     data_chart = pd.read_sql("""Select 
         REPORTING_DATE,
         L1,
@@ -98,10 +98,37 @@ with st.container(border=True):
     # Display the chart in Streamlit
     st.altair_chart(chart, use_container_width=True)
 
+with st.container(border=True):
+    st.write("Chart of Monthly Income Sources")  
+    data_chart_incom = pd.read_sql("""Select SUM(amount) as INCOME,
+                             L1 as TYPE_OF_INCOME, 
+                             REPORTING_DATE from BUDGET.MART.BUDGET 
+                             where owner = 'Peter' and L1 = TD 'Synnex'
+                             group by all;""", conn)
+    
+    
+    # Create an Altair bar chart
+    chart = alt.Chart(data_chart_incom).mark_bar(size=25).encode(
+        x='REPORTING_DATE:T',
+        y='INCOME:Q',
+        color='TYPE_OF_INCOME:N'
+    ).properties(
+        width=600,  # Set the width of the chart
+        height=400  # Set the height of the chart
+    ).configure_axis(
+        labelFontSize=14,  # Adjust axis label size
+        titleFontSize=16,  # Adjust axis title size
+    ).configure_legend(
+        titleFontSize=16,  # Adjust legend title size
+        labelFontSize=14   # Adjust legend label size
+    )
+    
+    # Display the chart in Streamlit
+    st.altair_chart(chart, use_container_width=True)
 
 
 with st.container(border=True):
-    #st.write("This is inside the container")  
+    st.write("Chart of Monthly P&L")  
 
     data_chart_2 = pd.read_sql("""Select 
         REPORTING_DATE,
@@ -138,6 +165,7 @@ with st.container(border=True):
     st.altair_chart(chart_2, use_container_width=True)
 
 with st.container(border=True):
+    st.write("Chart of Monthly Expense Development")  
     st.line_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
 
 #st.write("Here is the raw data from Snowflake:")
