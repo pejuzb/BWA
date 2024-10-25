@@ -59,18 +59,8 @@ data = pd.read_sql(query, conn)
 st.title('Jans Budget Data Viewer')
 #AgGrid(data, height=400)
 
-
-# # Filter out rows where L1 is 'TD Synnex'
-# df_filtered = data[(data['L1'] != 'TD Synnex') & (data['YEAR'] == 2024)]
-# #Group by L1 and month, and sum the amounts
-# monthly_expenses = df_filtered.groupby(['L1','REPORTING_DATE'])['AMOUNT'].sum()
-# # Take absolute values of sums
-# monthly_expenses = monthly_expenses.abs()
-# #st.dataframe(monthly_expenses)
-
-
 with st.container(border=True):
-    #st.write("This is inside the container")  
+    st.write("Chart of Monthly Expenses (No Income Included)") 
     data_chart = pd.read_sql("""Select 
         REPORTING_DATE,
         L1,
@@ -102,8 +92,8 @@ with st.container(border=True):
 
 
 with st.container(border=True):
-    st.write("Chart of income type")  
-    data_chart = pd.read_sql("""Select SUM(amount) as INCOME,
+    st.write("Chart of Monthly Income Sources")  
+    data_chart_incom = pd.read_sql("""Select SUM(amount) as INCOME,
                              L2 as TYPE_OF_INCOME, 
                              REPORTING_DATE from BUDGET.MART.BUDGET 
                              where owner = 'Jan' and L1 = 'Prijem'
@@ -111,7 +101,7 @@ with st.container(border=True):
     
     
     # Create an Altair bar chart
-    chart = alt.Chart(data_chart).mark_bar(size=25).encode(
+    chart = alt.Chart(data_chart_incom).mark_bar(size=25).encode(
         x='REPORTING_DATE:T',
         y='INCOME:Q',
         color='TYPE_OF_INCOME:N'
@@ -130,7 +120,7 @@ with st.container(border=True):
     st.altair_chart(chart, use_container_width=True)
 
 with st.container(border=True):
-    #st.write("This is inside the container")  
+    st.write("Chart of Monthly P&L")  
 
     data_chart_2 = pd.read_sql("""Select 
         REPORTING_DATE,
@@ -168,6 +158,7 @@ with st.container(border=True):
     st.altair_chart(chart_2, use_container_width=True)
 
 with st.container(border=True):
+    st.write("Chart of Monthly Expense Development")  
     st.line_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
 
 #st.write("Here is the raw data from Snowflake:")
