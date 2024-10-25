@@ -231,8 +231,11 @@ def display_csv():
     # Initialize BlobServiceClient
     blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
 
-    # Create a blob client
-    blob_client = blob_service_client.get_container_client(container='snfdb',blob='input_hiearchy_peter.csv')
+    # Get the container client
+    container_client = blob_service_client.get_container_client(container="snfdb")
+
+    # Create a blob client for the specific blob
+    blob_client = container_client.get_blob_client(blob="input_hiearchy_peter.csv")
 
     # Download the blob's content as text
     blob_data = blob_client.download_blob().content_as_text()
@@ -242,6 +245,8 @@ def display_csv():
 
     # Display the DataFrame
     return df
+
+
 
 if st.button('show csv'):
     display_csv()
