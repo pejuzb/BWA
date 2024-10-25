@@ -60,15 +60,6 @@ st.title('Peters Budget Data Viewer')
 #AgGrid(data, height=400)
 
 
-# # Filter out rows where L1 is 'TD Synnex'
-# df_filtered = data[(data['L1'] != 'TD Synnex') & (data['YEAR'] == 2024)]
-# #Group by L1 and month, and sum the amounts
-# monthly_expenses = df_filtered.groupby(['L1','REPORTING_DATE'])['AMOUNT'].sum()
-# # Take absolute values of sums
-# monthly_expenses = monthly_expenses.abs()
-# #st.dataframe(monthly_expenses)
-
-
 with st.container(border=True):
     st.write("Chart of Monthly Expenses (No Income Included)") 
     data_chart = pd.read_sql("""Select 
@@ -98,33 +89,33 @@ with st.container(border=True):
     # Display the chart in Streamlit
     st.altair_chart(chart, use_container_width=True)
 
-with st.container(border=True):
-    st.write("Chart of Monthly Income Sources")  
-    data_chart_incom = pd.read_sql("""Select SUM(amount) as INCOME,
-                             L1 as TYPE_OF_INCOME, 
-                             REPORTING_DATE from BUDGET.MART.BUDGET 
-                             where owner = 'Peter' and L1 = 'TD Synnex'
-                             group by all;""", conn)
+# with st.container(border=True):
+#     st.write("Chart of Monthly Income Sources")  
+#     data_chart_incom = pd.read_sql("""Select SUM(amount) as INCOME,
+#                              L1 as TYPE_OF_INCOME, 
+#                              REPORTING_DATE from BUDGET.MART.BUDGET 
+#                              where owner = 'Peter' and L1 = 'TD Synnex'
+#                              group by all;""", conn)
     
     
-    # Create an Altair bar chart
-    chart = alt.Chart(data_chart_incom).mark_bar(size=25).encode(
-        x='REPORTING_DATE:T',
-        y='INCOME:Q',
-        color='TYPE_OF_INCOME:N'
-    ).properties(
-        width=600,  # Set the width of the chart
-        height=400  # Set the height of the chart
-    ).configure_axis(
-        labelFontSize=14,  # Adjust axis label size
-        titleFontSize=16,  # Adjust axis title size
-    ).configure_legend(
-        titleFontSize=16,  # Adjust legend title size
-        labelFontSize=14   # Adjust legend label size
-    )
+#     # Create an Altair bar chart
+#     chart = alt.Chart(data_chart_incom).mark_bar(size=25).encode(
+#         x='REPORTING_DATE:T',
+#         y='INCOME:Q',
+#         color='TYPE_OF_INCOME:N'
+#     ).properties(
+#         width=600,  # Set the width of the chart
+#         height=400  # Set the height of the chart
+#     ).configure_axis(
+#         labelFontSize=14,  # Adjust axis label size
+#         titleFontSize=16,  # Adjust axis title size
+#     ).configure_legend(
+#         titleFontSize=16,  # Adjust legend title size
+#         labelFontSize=14   # Adjust legend label size
+#     )
     
-    # Display the chart in Streamlit
-    st.altair_chart(chart, use_container_width=True)
+#     # Display the chart in Streamlit
+#     st.altair_chart(chart, use_container_width=True)
 
 
 with st.container(border=True):
