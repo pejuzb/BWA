@@ -227,6 +227,26 @@ if st.button("Refresh Cache"):
     st.success("Cache cleared!")
 
 
+def display_csv():
+    # Initialize BlobServiceClient
+    blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+
+    # Create a blob client
+    blob_client = blob_service_client.get_container_client(container='snfdb',blob='input_hiearchy_peter.csv')
+
+    # Download the blob's content as text
+    blob_data = blob_client.download_blob().content_as_text()
+
+    # Convert the text data to a DataFrame
+    df = pd.read_csv(StringIO(blob_data))
+
+    # Display the DataFrame
+    return df
+
+if st.button('show csv'):
+    display_csv()
+
+
 # Close the cursor and connection
 cur.close()
 conn.close()
