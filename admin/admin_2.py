@@ -103,7 +103,7 @@ with st.container(border=True):
     data_chart_incom = pd.read_sql("""Select SUM(amount) as INCOME,
                              L1 as TYPE_OF_INCOME, 
                              REPORTING_DATE from BUDGET.MART.BUDGET 
-                             where owner = 'Peter' and L1 = TD 'Synnex'
+                             where owner = 'Peter' and L1 = 'TD Synnex'
                              group by all;""", conn)
     
     
