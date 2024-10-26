@@ -259,7 +259,7 @@ def display_csv():
     #     return
 
     df_combined = pd.concat([df, df_test_a], ignore_index=True)
-    df_test_a['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
+    df_combined['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
 
      # Convert DataFrame to CSV in memory
     csv_buffer = StringIO()
