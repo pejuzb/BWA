@@ -242,13 +242,14 @@ def export_csv(df_update):
     # df_combined = pd.concat([df, df_update], ignore_index=True)
 
     df_combined = df
+    df_combined['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
 
 
      # Convert DataFrame to CSV in memory
     csv_buffer = StringIO()
     df_combined.to_csv(csv_buffer, index=False, sep = ';')
 
-    df_combined['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
+    
 
     # Upload the CSV to Azure Blob Storage
     blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
