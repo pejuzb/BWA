@@ -192,6 +192,8 @@ def export_csv(df_update):
     
     df_update = df_update[['PROD_HIERARCHY_ID','L1','L2','L3','LOAD_DATETIME']]
 
+    df_update.columns = df.columns
+
     df_combined = pd.concat([df, df_update], ignore_index=True)
      # Convert DataFrame to CSV in memory
     csv_buffer = StringIO()
