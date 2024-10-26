@@ -135,39 +135,74 @@ st.dataframe(df_mh)
 
 
 
-def export_csv():
-    try:
-        # Create a blob service client using the connection string or account URL
-        blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+# def export_csv():
+#     try:
+#         # Create a blob service client using the connection string or account URL
+#         blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
 
-        # Create a container client for the specified container (without the 'blob' argument)
-        container_client = blob_service_client.get_container_client('snfdb')
+#         # Create a container client for the specified container (without the 'blob' argument)
+#         container_client = blob_service_client.get_container_client('snfdb')
 
-        # Create a blob client for the specific blob (file) you want to upload
-        blob_client = container_client.get_blob_client('azure_export_peter.csv')
+#         # Create a blob client for the specific blob (file) you want to upload
+#         blob_client = container_client.get_blob_client('azure_export_peter.csv')
 
 
-        # Query to fetch data from Snowflake
-        query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
+#         # Query to fetch data from Snowflake
+#         query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
 
-        # Load data into Pandas DataFrame
-        df_H = pd.read_sql(query_hier, conn)
+#         # Load data into Pandas DataFrame
+#         df_H = pd.read_sql(query_hier, conn)
 
-        if df_H.empty:
-            st.write("No data to export. The DataFrame is empty.")
-            return  # This terminates the process if no data is available
+#         if df_H.empty:
+#             st.write("No data to export. The DataFrame is empty.")
+#             return  # This terminates the process if no data is available
 
-        # Convert DataFrame to CSV in memory
-        csv_buffer = StringIO()
-        df_H.to_csv(csv_buffer, index=False)
+#         # Convert DataFrame to CSV in memory
+#         csv_buffer = StringIO()
+#         df_H.to_csv(csv_buffer, index=False)
 
-        # Upload the CSV to Azure Blob Storage
-        blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+#         # Upload the CSV to Azure Blob Storage
+#         blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
 
-        st.write("CSV exported successfully!")
+#         st.write("CSV exported successfully!")
         
-    except Exception as e:
-        st.write(f"Error exporting data: {e}")
+#     except Exception as e:
+#         st.write(f"Error exporting data: {e}")
+
+
+
+def export_csv(df_update):
+    # Initialize BlobServiceClient
+    blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+
+    # Get the container client
+    container_client = blob_service_client.get_container_client(container="snfdb")
+
+    # Create a blob client for the specific blob
+    blob_client = container_client.get_blob_client(blob="input_hierarchy_peter.csv")
+
+    # Download the blob's content as text
+    blob_data = blob_client.download_blob().content_as_text()
+
+    # Convert the text data to a DataFrame
+    df = pd.read_csv(StringIO(blob_data),delimiter=";")
+
+    if df_update.empty:
+        return
+
+    df_combined = pd.concat([df, df_update], ignore_index=True)
+     # Convert DataFrame to CSV in memory
+    csv_buffer = StringIO()
+    df_combined.to_csv(csv_buffer, index=False, sep = ';')
+
+    # Upload the CSV to Azure Blob Storage
+    blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+
+    #st.write("CSV exported successfully!")
+    
+    # Display the DataFrame
+    return True
+
 
 
 
@@ -219,7 +254,7 @@ if st.button("Insert Data into Snowflake"):
     edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
     edited_df = edited_df[edited_df['L1'].notnull()]
     insert_data(edited_df)
-    export_csv()
+    export_csv(edited_df)
 
 # Add a "Refresh Cache" button
 if st.button("Refresh Cache"):
@@ -227,59 +262,8 @@ if st.button("Refresh Cache"):
     st.success("Cache cleared!")
 
 
-def display_csv():
-    # Initialize BlobServiceClient
-    blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
-
-    # Get the container client
-    container_client = blob_service_client.get_container_client(container="snfdb")
-
-    # Create a blob client for the specific blob
-    blob_client = container_client.get_blob_client(blob="input_hiearchy_peter.csv")
-
-    # Download the blob's content as text
-    blob_data = blob_client.download_blob().content_as_text()
-
-    # Convert the text data to a DataFrame
-    df = pd.read_csv(StringIO(blob_data),delimiter=";")
-
-
-
-    data = {
-    'prod_hierarchy_id': ['PJ_TEST_Aeropuerto', 'PJ_TEST_Hotel', 'PJ_TEST_Restaurante', 'PJ_TEST_Museo', 'PJ_TEST_Parque', 'PJ_TEST_Estadio', 'PJ_TEST_Centro Comercial', 'PJ_TEST_Teatro', 'PJ_TEST_Cine', 'PJ_TEST_Playa'],
-    'L1': ['Travel', 'Travel', 'Dining', 'Entertainment', 'Recreation', 'Sports', 'Shopping', 'Entertainment', 'Entertainment', 'Recreation'],
-    'L2': ['Airport', 'Lodging', 'Food', 'Cultural', 'Outdoor', 'Arena', 'Mall', 'Performance', 'Movie', 'Beach'],
-    'L3': ['Aeropuerto', 'Hotel', 'Restaurante', 'Museo', 'Parque', 'Estadio', 'Centro Comercial', 'Teatro', 'Cine', 'Playa']
-    }
-
-    df_test_a = pd.DataFrame(data)
-    df_test_a = df_test_a.iloc[0:0]
-
-    # if df_test_a.empty:
-    #     return
-
-    df_combined = pd.concat([df, df_test_a], ignore_index=True)
-    df_combined['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
-
-     # Convert DataFrame to CSV in memory
-    csv_buffer = StringIO()
-    df_combined.to_csv(csv_buffer, index=False, sep = ';')
-
-    # Create a blob client for the specific blob (file) you want to upload
-    blob_client_up = container_client.get_blob_client('pj_test_export.csv')
-
-    # Upload the CSV to Azure Blob Storage
-    blob_client_up.upload_blob(csv_buffer.getvalue(), overwrite=True)
-
-    st.write("CSV exported successfully!")
-    
-    # Display the DataFrame
-    return st.dataframe(df_combined)
-
-
-
-if st.button('show csv'):
-    display_csv()
+if st.button('Export CSV'):
+    export_csv()
 
 
 # Close the cursor and connection
