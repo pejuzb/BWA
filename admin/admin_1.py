@@ -254,13 +254,15 @@ def display_csv():
     }
 
     df_test_a = pd.DataFrame(data)
+    
 
     df_test_a = df_test_a.iloc[0:0]
 
+    if df_test_a.empty:
+        st.write('Nothing to upload - process stopped')
+
     df_combined = pd.concat([df, df_test_a], ignore_index=True)
-
-    df_combined['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
-
+    df_test_a['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
 
      # Convert DataFrame to CSV in memory
     csv_buffer = StringIO()
