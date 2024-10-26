@@ -243,6 +243,9 @@ def display_csv():
     # Convert the text data to a DataFrame
     df = pd.read_csv(StringIO(blob_data),delimiter=";")
 
+
+ #index=False, sep=';'
+
     data = {
     'prod_hierarchy_id': ['PJ_TEST_Aeropuerto', 'PJ_TEST_Hotel', 'PJ_TEST_Restaurante', 'PJ_TEST_Museo', 'PJ_TEST_Parque', 'PJ_TEST_Estadio', 'PJ_TEST_Centro Comercial', 'PJ_TEST_Teatro', 'PJ_TEST_Cine', 'PJ_TEST_Playa'],
     'L1': ['Travel', 'Travel', 'Dining', 'Entertainment', 'Recreation', 'Sports', 'Shopping', 'Entertainment', 'Entertainment', 'Recreation'],
@@ -251,9 +254,21 @@ def display_csv():
     }
 
     df_test_a = pd.DataFrame(data)
-
     df_combined = pd.concat([df, df_test_a], ignore_index=True)
 
+
+     # Convert DataFrame to CSV in memory
+    csv_buffer = StringIO()
+    df_combined.to_csv(csv_buffer, index=False)
+
+    # Create a blob client for the specific blob (file) you want to upload
+    blob_client_up = container_client.get_blob_client('pj_test_export.csv')
+
+    # Upload the CSV to Azure Blob Storage
+    blob_client_up.upload_blob(csv_buffer.getvalue(), overwrite=True)
+
+    st.write("CSV exported successfully!")
+    
     # Display the DataFrame
     return st.dataframe(df_combined)
 
