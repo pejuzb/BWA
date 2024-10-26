@@ -187,10 +187,13 @@ def export_csv(df_update):
     # Convert the text data to a DataFrame
     df = pd.read_csv(StringIO(blob_data),delimiter=";")
 
+    df.columns = df.columns.str.upper()
+
     if df_update.empty:
         return
     
     df_update = df_update[['PROD_HIERARCHY_ID','L1','L2','L3','LOAD_DATETIME']]
+    df_update = df_update.rename(columns={'LOAD_DATETIME': 'AZURE_INSERT_DATETIME'})
 
     df_update.columns = df.columns
 
