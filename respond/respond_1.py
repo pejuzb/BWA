@@ -179,39 +179,80 @@ st.write("### Editable Table")
 edited_df = st.data_editor(df, num_rows="dynamic")
 
 
-def export_csv():
-    try:
-        # Create a blob service client using the connection string or account URL
-        blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+# def export_csv():
+#     try:
+#         # Create a blob service client using the connection string or account URL
+#         blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
 
-        # Create a container client for the specified container (without the 'blob' argument)
-        container_client = blob_service_client.get_container_client('snfdb')
+#         # Create a container client for the specified container (without the 'blob' argument)
+#         container_client = blob_service_client.get_container_client('snfdb')
 
-        # Create a blob client for the specific blob (file) you want to upload
-        blob_client = container_client.get_blob_client('azure_export_oco.csv')
+#         # Create a blob client for the specific blob (file) you want to upload
+#         blob_client = container_client.get_blob_client('azure_export_oco.csv')
 
 
-        # Query to fetch data from Snowflake
-        query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan'"
+#         # Query to fetch data from Snowflake
+#         query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Jan'"
 
-        # Load data into Pandas DataFrame
-        df_H = pd.read_sql(query_hier, conn)
+#         # Load data into Pandas DataFrame
+#         df_H = pd.read_sql(query_hier, conn)
 
-        if df_H.empty:
-            st.write("No data to export. The DataFrame is empty.")
-            return  # This terminates the process if no data is available
+#         if df_H.empty:
+#             st.write("No data to export. The DataFrame is empty.")
+#             return  # This terminates the process if no data is available
 
-        # Convert DataFrame to CSV in memory
-        csv_buffer = StringIO()
-        df_H.to_csv(csv_buffer, index=False)
+#         # Convert DataFrame to CSV in memory
+#         csv_buffer = StringIO()
+#         df_H.to_csv(csv_buffer, index=False)
 
-        # Upload the CSV to Azure Blob Storage
-        blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+#         # Upload the CSV to Azure Blob Storage
+#         blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
 
-        st.write("CSV exported successfully!")
+#         st.write("CSV exported successfully!")
         
-    except Exception as e:
-        st.write(f"Error exporting data: {e}")
+#     except Exception as e:
+#         st.write(f"Error exporting data: {e}")
+
+def export_csv(df_update):
+    # Initialize BlobServiceClient
+    blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+
+    # Get the container client
+    container_client = blob_service_client.get_container_client(container="snfdb")
+
+    # Create a blob client for the specific blob
+    blob_client = container_client.get_blob_client(blob="input_hierarchy_jan.csv")
+
+    # Download the blob's content as text
+    blob_data = blob_client.download_blob().content_as_text()
+
+    # Convert the text data to a DataFrame
+    df = pd.read_csv(StringIO(blob_data),delimiter=";")
+
+    df.columns = df.columns.str.upper()
+
+    if df_update.empty:
+        return
+    
+    df_update = df_update[['PROD_HIERARCHY_ID','L1','L2','L3','LOAD_DATETIME']]
+    df_update = df_update.rename(columns={'LOAD_DATETIME': 'AZURE_INSERT_DATETIME'})
+
+    df_update.columns = df.columns
+
+    df_combined = pd.concat([df, df_update], ignore_index=True)
+     # Convert DataFrame to CSV in memory
+    csv_buffer = StringIO()
+    df_combined.to_csv(csv_buffer, index=False, sep = ';')
+
+    df_combined['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
+
+    # Upload the CSV to Azure Blob Storage
+    blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+
+    #st.write("CSV exported successfully!")
+    
+    # Display the DataFrame
+    return True
 
 
 # Button to insert updated data
@@ -219,7 +260,7 @@ if st.button("Insert Data into Snowflake"):
     edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
     edited_df = edited_df[edited_df['L1'].notnull()]
     insert_data(edited_df)
-    export_csv()
+    export_csv(edited_df)
 
 # Add a "Refresh Cache" button
 if st.button("Refresh Cache"):
