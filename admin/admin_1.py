@@ -241,10 +241,10 @@ def display_csv():
     blob_data = blob_client.download_blob().content_as_text()
 
     # Convert the text data to a DataFrame
-    df = pd.read_csv(StringIO(blob_data))
+    df = pd.read_csv(StringIO(blob_data),delimiter=";")
 
     # Display the DataFrame
-    return df
+    return st.dataframe(df)
 
 
 
