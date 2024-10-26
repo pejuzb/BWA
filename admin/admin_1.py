@@ -190,7 +190,7 @@ def export_csv(df_update):
     if df_update.empty:
         return
     
-    df_update = df_update[['PROD_HIERARCHY','L1','L2','L3','LOAD_DATETIME']]
+    df_update = df_update[['PROD_HIERARCHY_ID','L1','L2','L3','LOAD_DATETIME']]
 
     df_combined = pd.concat([df, df_update], ignore_index=True)
      # Convert DataFrame to CSV in memory
