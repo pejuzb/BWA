@@ -243,8 +243,19 @@ def display_csv():
     # Convert the text data to a DataFrame
     df = pd.read_csv(StringIO(blob_data),delimiter=";")
 
+    data = {
+    'prod_hierarchy_id': ['PJ_TEST_Aeropuerto', 'PJ_TEST_Hotel', 'PJ_TEST_Restaurante', 'PJ_TEST_Museo', 'PJ_TEST_Parque', 'PJ_TEST_Estadio', 'PJ_TEST_Centro Comercial', 'PJ_TEST_Teatro', 'PJ_TEST_Cine', 'PJ_TEST_Playa'],
+    'L1': ['Travel', 'Travel', 'Dining', 'Entertainment', 'Recreation', 'Sports', 'Shopping', 'Entertainment', 'Entertainment', 'Recreation'],
+    'L2': ['Airport', 'Lodging', 'Food', 'Cultural', 'Outdoor', 'Arena', 'Mall', 'Performance', 'Movie', 'Beach'],
+    'L3': ['Aeropuerto', 'Hotel', 'Restaurante', 'Museo', 'Parque', 'Estadio', 'Centro Comercial', 'Teatro', 'Cine', 'Playa']
+    }
+
+    df_test_a = pd.DataFrame(data)
+
+    df_combined = pd.concat([df, df_test_a], ignore_index=True)
+
     # Display the DataFrame
-    return st.dataframe(df)
+    return st.dataframe(df_combined)
 
 
 
