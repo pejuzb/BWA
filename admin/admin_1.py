@@ -259,7 +259,7 @@ def display_csv():
 
      # Convert DataFrame to CSV in memory
     csv_buffer = StringIO()
-    df_combined.to_csv(csv_buffer, index=False)
+    df_combined.to_csv(csv_buffer, index=False, sep = ';')
 
     # Create a blob client for the specific blob (file) you want to upload
     blob_client_up = container_client.get_blob_client('pj_test_export.csv')
