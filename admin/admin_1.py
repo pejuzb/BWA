@@ -244,7 +244,6 @@ def display_csv():
     df = pd.read_csv(StringIO(blob_data),delimiter=";")
 
 
- #index=False, sep=';'
 
     data = {
     'prod_hierarchy_id': ['PJ_TEST_Aeropuerto', 'PJ_TEST_Hotel', 'PJ_TEST_Restaurante', 'PJ_TEST_Museo', 'PJ_TEST_Parque', 'PJ_TEST_Estadio', 'PJ_TEST_Centro Comercial', 'PJ_TEST_Teatro', 'PJ_TEST_Cine', 'PJ_TEST_Playa'],
@@ -254,13 +253,10 @@ def display_csv():
     }
 
     df_test_a = pd.DataFrame(data)
-    
-
     df_test_a = df_test_a.iloc[0:0]
 
-    if df_test_a.empty:
-        st.write('Nothing to upload - process stopped')
-        return
+    # if df_test_a.empty:
+    #     return
 
     df_combined = pd.concat([df, df_test_a], ignore_index=True)
     df_test_a['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
