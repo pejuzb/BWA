@@ -260,6 +260,7 @@ def display_csv():
 
     if df_test_a.empty:
         st.write('Nothing to upload - process stopped')
+        return
 
     df_combined = pd.concat([df, df_test_a], ignore_index=True)
     df_test_a['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
