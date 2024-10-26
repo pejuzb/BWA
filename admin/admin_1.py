@@ -254,6 +254,9 @@ def display_csv():
     }
 
     df_test_a = pd.DataFrame(data)
+
+    df_test_a = df_test_a.iloc[0:0]
+
     df_combined = pd.concat([df, df_test_a], ignore_index=True)
 
     df_combined['AZURE_INSERT_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
