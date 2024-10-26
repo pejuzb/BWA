@@ -231,15 +231,19 @@ def export_csv(df_update):
 
     df.columns = df.columns.str.upper()
 
-    if df_update.empty:
-        return
+    # if df_update.empty:
+    #     return
     
-    df_update = df_update[['PROD_HIERARCHY_ID','L1','L2','L3','LOAD_DATETIME']]
-    df_update = df_update.rename(columns={'LOAD_DATETIME': 'AZURE_INSERT_DATETIME'})
+    # df_update = df_update[['PROD_HIERARCHY_ID','L1','L2','L3','LOAD_DATETIME']]
+    # df_update = df_update.rename(columns={'LOAD_DATETIME': 'AZURE_INSERT_DATETIME'})
 
-    df_update.columns = df.columns
+    # df_update.columns = df.columns
 
-    df_combined = pd.concat([df, df_update], ignore_index=True)
+    # df_combined = pd.concat([df, df_update], ignore_index=True)
+
+    df_combined = df
+
+
      # Convert DataFrame to CSV in memory
     csv_buffer = StringIO()
     df_combined.to_csv(csv_buffer, index=False, sep = ';')
