@@ -189,6 +189,8 @@ def export_csv(df_update):
 
     if df_update.empty:
         return
+    
+    df_update = df_update[['PROD_HIERARCHY','L1','L2','L3','LOAD_DATETIME']]
 
     df_combined = pd.concat([df, df_update], ignore_index=True)
      # Convert DataFrame to CSV in memory
@@ -260,10 +262,6 @@ if st.button("Insert Data into Snowflake"):
 if st.button("Refresh Cache"):
     st.cache_data.clear()  # Clear the cache
     st.success("Cache cleared!")
-
-
-if st.button('Export CSV'):
-    export_csv()
 
 
 # Close the cursor and connection
