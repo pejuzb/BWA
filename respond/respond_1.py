@@ -246,7 +246,7 @@ def export_csv(df_update):
     container_client = blob_service_client.get_container_client(container="snfdb")
 
     # Create a blob client for the specific blob
-    blob_client = container_client.get_blob_client(blob="input_hierarchy_jan.csv")
+    blob_client = container_client.get_blob_client(blob="peter/inputs/input_hierarchy_jan.csv")
 
     # Download the blob's content as text
     blob_data = blob_client.download_blob().content_as_text()
