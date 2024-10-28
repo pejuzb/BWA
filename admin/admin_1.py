@@ -70,7 +70,7 @@ def upload_to_blob(file, filename):
 
         # Upload the file content to the blob within 'peter/inputs' folder
         blob_client.upload_blob(data=file_data, name=full_filename, overwrite=True)
-        return st.success(f"File {filename} uploaded successfully to 'peter/inputs'!")
+        return f"File {filename} uploaded successfully to 'peter/inputs'!"
     
     except Exception as e:
         return f"Error uploading file: {e}"
