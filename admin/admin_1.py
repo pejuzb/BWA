@@ -91,11 +91,11 @@ if uploaded_files is not None:
         }
 
         # Display file details
-        st.write(file_details)
+        #st.write(file_details)
 
         # Upload the file to Azure Blob Storage
         result_message = upload_to_blob(uploaded_file, uploaded_file.name)
-        st.write(result_message)
+        st.success(result_message)
 
 # Snowflake connection
 conn = snowflake.connector.connect(
