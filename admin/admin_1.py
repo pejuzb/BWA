@@ -38,31 +38,41 @@ def upload_to_blob(file, filename):
         # Create a blob service client using the connection string
         blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
 
-        # Create a blob client
+        # Get a container client
         blob_client = blob_service_client.get_container_client(container='snfdb')
 
-        # Check for existing files containing 'pohyb' in their names
-        existing_blobs = blob_client.list_blobs()
-        for existing_blob in existing_blobs:
-            if 'pohyb' in existing_blob.name:
-                # Move the existing file to the processed_files folder
-                source_blob = existing_blob.name
-                target_blob = f"processed_files/{source_blob}"
+        # Define the folder path within the container
+        folder_path = "peter/inputs/"
 
-                # Copy the existing blob to the new location
-                blob_client.get_blob_client(target_blob).start_copy_from_url(blob_client.get_blob_client(source_blob).url)
+        # Check if the filename contains 'pohyby'
+        if 'pohyby' in filename:
+            # Check for existing files containing 'pohyby' in the folder 'peter/inputs'
+            existing_blobs = blob_client.list_blobs(name_starts_with=folder_path)
+            for existing_blob in existing_blobs:
+                if 'pohyb' in existing_blob.name:
+                    # Move the existing file to the processed_files folder
+                    source_blob = existing_blob.name
+                    target_blob = f"processed_files/{source_blob}"
 
-                # Delete the original blob
-                blob_client.delete_blob(source_blob)
+                    # Copy the existing blob to the new location
+                    blob_client.get_blob_client(target_blob).start_copy_from_url(blob_client.get_blob_client(source_blob).url)
+
+                    # Delete the original blob
+                    blob_client.delete_blob(source_blob)
+
+        # Define the full path for the new file within the container
+        full_filename = f"{folder_path}{filename}"
 
         # Read the file content
         file_data = file.read()
 
-        # Upload the file content to the blob
-        blob_client.upload_blob(data=file_data, name=filename, overwrite=True)
-        return f"File {filename} uploaded successfully!"
+        # Upload the file content to the blob within 'peter/inputs' folder
+        blob_client.upload_blob(data=file_data, name=full_filename, overwrite=True)
+        return f"File {filename} uploaded successfully to 'peter/inputs'!"
+    
     except Exception as e:
         return f"Error uploading file: {e}"
+    
 
 # Streamlit File Uploader for multiple files
 st.title("Upload Files to Azure Blob Storage")
