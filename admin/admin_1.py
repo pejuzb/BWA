@@ -44,12 +44,12 @@ def upload_to_blob(file, filename):
         # Define the folder path within the container
         folder_path = "peter/inputs/"
 
-        # Check if the filename contains 'pohyby'
-        if 'pohyby' in filename:
-            # Check for existing files containing 'pohyby' in the folder 'peter/inputs'
+        # Check if the filename contains 'pohyby' or 'account-statement'
+        if 'pohyby' in filename or 'account-statement' in filename:
+            # Check for existing files containing 'pohyby' or 'account-statement' in the folder 'peter/inputs'
             existing_blobs = blob_client.list_blobs(name_starts_with=folder_path)
             for existing_blob in existing_blobs:
-                if 'pohyb' in existing_blob.name:
+                if 'pohyb' in existing_blob.name or 'account-statement' in existing_blob.name:
                     # Move the existing file to the 'peter/processed_files' folder
                     source_blob = existing_blob.name
                     target_blob = f"peter/processed_files/{existing_blob.name.split('/')[-1]}"
@@ -68,10 +68,10 @@ def upload_to_blob(file, filename):
 
         # Upload the file content to the blob within 'peter/inputs' folder
         blob_client.upload_blob(data=file_data, name=full_filename, overwrite=True)
-        return f"File {filename} uploaded successfully to 'peter/inputs'!"
+        return st.success(f"File {filename} uploaded successfully to 'peter/inputs'!")
     
     except Exception as e:
-        return f"Error uploading file: {e}"
+        return st.error(f"Error uploading file: {e}")
     
 
 # Streamlit File Uploader for multiple files
