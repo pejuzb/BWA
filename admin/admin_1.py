@@ -32,7 +32,6 @@ def secrets_get(secret_name):
     secret = secret_client.get_secret(secret_name)
     return secret.value
 
-# Function to upload file to Azure Blob Storage
 def upload_to_blob(file, filename):
     try:
         # Create a blob service client using the connection string
@@ -46,10 +45,13 @@ def upload_to_blob(file, filename):
 
         # Check if the filename contains 'pohyby' or 'account-statement'
         if 'pohyby' in filename or 'account-statement' in filename:
-            # Check for existing files containing 'pohyby' or 'account-statement' in the folder 'peter/inputs'
+            # Determine the string to look for in existing blobs based on the filename
+            file_keyword = 'pohyby' if 'pohyby' in filename else 'account-statement'
+
+            # Check for existing files containing the specific keyword in 'peter/inputs'
             existing_blobs = blob_client.list_blobs(name_starts_with=folder_path)
             for existing_blob in existing_blobs:
-                if 'pohyb' in existing_blob.name or 'account-statement' in existing_blob.name:
+                if file_keyword in existing_blob.name:
                     # Move the existing file to the 'peter/processed_files' folder
                     source_blob = existing_blob.name
                     target_blob = f"peter/processed_files/{existing_blob.name.split('/')[-1]}"
@@ -71,7 +73,7 @@ def upload_to_blob(file, filename):
         return st.success(f"File {filename} uploaded successfully to 'peter/inputs'!")
     
     except Exception as e:
-        return st.error(f"Error uploading file: {e}")
+        return f"Error uploading file: {e}"
     
 
 # Streamlit File Uploader for multiple files
