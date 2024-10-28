@@ -50,9 +50,9 @@ def upload_to_blob(file, filename):
             existing_blobs = blob_client.list_blobs(name_starts_with=folder_path)
             for existing_blob in existing_blobs:
                 if 'pohyb' in existing_blob.name:
-                    # Move the existing file to the processed_files folder
+                    # Move the existing file to the 'peter/processed_files' folder
                     source_blob = existing_blob.name
-                    target_blob = f"processed_files/{source_blob}"
+                    target_blob = f"peter/processed_files/{existing_blob.name.split('/')[-1]}"
 
                     # Copy the existing blob to the new location
                     blob_client.get_blob_client(target_blob).start_copy_from_url(blob_client.get_blob_client(source_blob).url)
