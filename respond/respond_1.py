@@ -32,21 +32,46 @@ def secrets_get(secret_name):
     secret = secret_client.get_secret(secret_name)
     return secret.value
 
-# Function to upload file to Azure Blob Storage
 def upload_to_blob(file, filename):
     try:
         # Create a blob service client using the connection string
         blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
 
-        # Create a blob client
+        # Get a container client
         blob_client = blob_service_client.get_container_client(container='snfdb')
+
+        # Define the folder path within the container
+        folder_path = "jan/inputs/"
+
+        # Check if the filename contains 'SK7075000000004024135645' or 'account-statement'
+        if 'SK7075000000004024135645' in filename or 'account-statement' in filename:
+            # Determine the string to look for in existing blobs based on the filename
+            file_keyword = 'SK7075000000004024135645' if 'SK7075000000004024135645' in filename else 'account-statement'
+
+            # Check for existing files containing the specific keyword in 'jan/inputs'
+            existing_blobs = blob_client.list_blobs(name_starts_with=folder_path)
+            for existing_blob in existing_blobs:
+                if file_keyword in existing_blob.name:
+                    # Move the existing file to the 'jan/processed_files' folder
+                    source_blob = existing_blob.name
+                    target_blob = f"jan/processed_files/{existing_blob.name.split('/')[-1]}"
+
+                    # Copy the existing blob to the new location
+                    blob_client.get_blob_client(target_blob).start_copy_from_url(blob_client.get_blob_client(source_blob).url)
+
+                    # Delete the original blob
+                    blob_client.delete_blob(source_blob)
+
+        # Define the full path for the new file within the container
+        full_filename = f"{folder_path}{filename}"
 
         # Read the file content
         file_data = file.read()
 
-        # Upload the file content to the blob
-        blob_client.upload_blob(data=file_data, name=filename, overwrite=True)
-        return f"File {filename} uploaded successfully!"
+        # Upload the file content to the blob within 'jan/inputs' folder
+        blob_client.upload_blob(data=file_data, name=full_filename, overwrite=True)
+        return f"File {filename} uploaded successfully to 'jan/inputs'!"
+    
     except Exception as e:
         return f"Error uploading file: {e}"
 
@@ -69,7 +94,7 @@ if uploaded_files is not None:
 
         # Upload the file to Azure Blob Storage
         result_message = upload_to_blob(uploaded_file, uploaded_file.name)
-        st.write(result_message)
+        st.success(result_message)
 
 # Snowflake connection
 conn = snowflake.connector.connect(
