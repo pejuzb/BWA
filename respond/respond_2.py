@@ -167,6 +167,6 @@ st.dataframe(data)
 
 # Close the cursor and connection
 cur.close()
-conn.close()
+#conn.close()
 
 
