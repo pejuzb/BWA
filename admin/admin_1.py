@@ -134,6 +134,9 @@ if st.button("Recalculate Database"):
         cur.execute("CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
         st.write("Core procedure [HIERARCHY] executed successfully!")
 
+        cur.execute("CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
+        st.write("Core procedure [C2C MANUAL ADJUSTMENTS] executed successfully!")
+
     except Exception as e:
         st.write(f"Error: {e}")  # Display error message if any
 
