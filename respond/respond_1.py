@@ -101,10 +101,10 @@ conn = snowflake.connector.connect(
     user=secrets_get('snf-user-app'),
     password=secrets_get('snf-password-app'),
     account=secrets_get('snf-account'),
-    #warehouse='COMPUTE_WH',
+    warehouse='COMPUTE_WH',
     database='BUDGET',
     schema='RAW',
-    role='ACCOUNTADMIN'
+    role='PUBLIC'
 )
 
 
