@@ -303,7 +303,7 @@ if st.button("Refresh Cache"):
 
 # Close the cursor and connection
 cur.close()
-conn.close()
+#conn.close()
 
 
 
