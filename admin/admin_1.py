@@ -153,8 +153,7 @@ st.dataframe(df)
 
 
 # Query to fetch data from Snowflake
-query_mh = """use warehouse compute_wh;
-Select * from BUDGET.MART.BUDGET where owner = 'Peter' and L1 is null
+query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Peter' and L1 is null
 order by transaction_date desc;"""
 
 # Load data into Pandas DataFrame
