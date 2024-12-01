@@ -113,16 +113,16 @@ cur = conn.cursor()
 
 if st.button("Recalculate Database"):
     try:
-        cur.execute("call truncate_raw_tables();")
+        cur.execute("CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
        
         # Execute the stored procedures
-        cur.execute("CALL COPY_FILES_TO_RAW_REVOLUT();")
+        cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
         st.write("Raw procedure [REVOLUT] executed successfully!")
 
-        cur.execute("CALL COPY_FILES_TO_RAW_CSOB();")
+        cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
         st.write("Raw procedure [CSOB] executed successfully!")
 
-        cur.execute("CALL COPY_FILES_TO_HIERARCHY();")
+        cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
         st.write("Raw procedure [HIERARCHY] executed successfully!")
 
         cur.execute("CALL BUDGET.CORE.RAW2CORE_REV();")
