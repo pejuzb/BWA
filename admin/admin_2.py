@@ -124,7 +124,7 @@ with st.container(border=True):
     data_chart_2 = pd.read_sql("""Select 
         REPORTING_DATE,
         SUM(AMOUNT) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE YEAR = YEAR(current_date) and OWNER = 'Peter' 
+        WHERE YEAR >= YEAR(DATEADD(YEAR,-1,current_date)) and OWNER = 'Peter' 
         GROUP BY ALL;""", conn)
     
     
