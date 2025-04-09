@@ -32,6 +32,12 @@ jobs:
           echo AZURE_VAULT_URL =${{ secrets.AZURE_VAULT_URL }} >> .env
           echo AZURE_STORAGE_URL =${{ secrets.AZURE_STORAGE_URL }} >> .env
 
+      - name: Print secret
+        run: |
+          echo "The value of my secret is ${{ secrets.AZURE_CLIENT_ID }}"
+          echo "The value of my secret is ${{ secrets.AZURE_CLIENT_SECRET }}"
+          echo "The value of my secret is ${{ secrets.AZURE_TENANT_ID }}"
+          echo "The value of my secret is ${{ secrets.AZURE_VAULT_URL }}"
           
 
       - name: Create and start virtual environment
@@ -54,17 +60,17 @@ jobs:
             release.zip
             !venv/
       
-      # - name: 'App with secreates'
-      #   env:
-      #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      #     AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      #     AZURE_VAULT_URL: ${{ secrets.AZURE_VAULT_URL }}
-      #   run: |
-      #     echo "The value of my secret is ${{ secrets.AZURE_CLIENT_ID }}"
-      #     echo "The value of my secret is ${{ secrets.AZURE_CLIENT_SECRET }}"
-      #     echo "The value of my secret is ${{ secrets.AZURE_TENANT_ID }}"
-      #     echo "The value of my secret is ${{ secrets.AZURE_VAULT_URL }}"
+       # - name: 'App with secreates'
+       #   env:
+       #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+       #     AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+       #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+       #     AZURE_VAULT_URL: ${{ secrets.AZURE_VAULT_URL }}
+       #   run: |
+       #     echo "The value of my secret is ${{ secrets.AZURE_CLIENT_ID }}"
+       #     echo "The value of my secret is ${{ secrets.AZURE_CLIENT_SECRET }}"
+       #     echo "The value of my secret is ${{ secrets.AZURE_TENANT_ID }}"
+       #     echo "The value of my secret is ${{ secrets.AZURE_VAULT_URL }}"
         
       
   deploy:
