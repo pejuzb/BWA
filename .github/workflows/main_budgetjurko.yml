@@ -105,6 +105,10 @@ jobs:
       #     tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CC4E1FCD306D4738B7070C3D9D060650 }}
       #     subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D0C5EAAB33C84F51A7C8D6F77B76060C }}
 
+      - name: Verify Web App exists
+        run: |
+          az webapp show --name budgetjurko --resource-group Resource_PJ
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
