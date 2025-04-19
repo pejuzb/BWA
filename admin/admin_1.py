@@ -13,7 +13,7 @@ import pytz  # Importing pytz for timezone handling
 import time
 from io import StringIO
 
-# Azure Key Vault
+# Azure Key Vault 
 client_id = os.getenv('AZURE_CLIENT_ID')
 tenant_id = os.getenv('AZURE_TENANT_ID')
 client_secret = os.getenv('AZURE_CLIENT_SECRET')
