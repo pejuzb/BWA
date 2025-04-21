@@ -109,204 +109,166 @@ conn = snowflake.connector.connect(
 )
 
 
-cur = conn.cursor()
+# cur = conn.cursor()
 
-if st.button("Recalculate Database"):
-    try:
-        cur.execute("CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
-       
-        # Execute the stored procedures
-        cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
-        st.write("Raw procedure [REVOLUT] executed successfully!")
-
-        cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
-        st.write("Raw procedure [CSOB] executed successfully!")
-
-        cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
-        st.write("Raw procedure [HIERARCHY] executed successfully!")
-
-        cur.execute("CALL BUDGET.CORE.RAW2CORE_REV();")
-        st.write("Core procedure [REVOLUT] executed successfully!")
-
-        cur.execute("CALL BUDGET.CORE.RAW2CORE_CSOB();")
-        st.write("Core procedure [CSOB] executed successfully!")
-
-        cur.execute("CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
-        st.write("Core procedure [HIERARCHY] executed successfully!")
-
-        cur.execute("CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
-        st.write("Core procedure [C2C MANUAL ADJUSTMENTS] executed successfully!")
-
-    except Exception as e:
-        st.write(f"Error: {e}")  # Display error message if any
-
-
-# Query to fetch data from Snowflake
-query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
-
-# Load data into Pandas DataFrame
-df = pd.read_sql(query, conn)
-
-# Display the DataFrame using Streamlit
-st.title('Snowflake Data Viewer')
-st.write("Here is the data from Snowflake:")
-st.dataframe(df)
-
-
-
-
-# Query to fetch data from Snowflake
-query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Peter' and L1 is null
-order by transaction_date desc;"""
-
-# Load data into Pandas DataFrame
-df_mh = pd.read_sql(query_mh, conn)
-
-# Display the DataFrame using Streamlit
-st.title('Record with Missing Hierarchy')
-st.write("Transaction data with missing hierarchy:")
-st.dataframe(df_mh)
-
-
-
-
-# def export_csv():
+# if st.button("Recalculate Database"):
 #     try:
-#         # Create a blob service client using the connection string or account URL
-#         blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+#         cur.execute("CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
+       
+#         # Execute the stored procedures
+#         cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
+#         st.write("Raw procedure [REVOLUT] executed successfully!")
 
-#         # Create a container client for the specified container (without the 'blob' argument)
-#         container_client = blob_service_client.get_container_client('snfdb')
+#         cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
+#         st.write("Raw procedure [CSOB] executed successfully!")
 
-#         # Create a blob client for the specific blob (file) you want to upload
-#         blob_client = container_client.get_blob_client('azure_export_peter.csv')
+#         cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
+#         st.write("Raw procedure [HIERARCHY] executed successfully!")
 
+#         cur.execute("CALL BUDGET.CORE.RAW2CORE_REV();")
+#         st.write("Core procedure [REVOLUT] executed successfully!")
 
-#         # Query to fetch data from Snowflake
-#         query_hier = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
+#         cur.execute("CALL BUDGET.CORE.RAW2CORE_CSOB();")
+#         st.write("Core procedure [CSOB] executed successfully!")
 
-#         # Load data into Pandas DataFrame
-#         df_H = pd.read_sql(query_hier, conn)
+#         cur.execute("CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
+#         st.write("Core procedure [HIERARCHY] executed successfully!")
 
-#         if df_H.empty:
-#             st.write("No data to export. The DataFrame is empty.")
-#             return  # This terminates the process if no data is available
+#         cur.execute("CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
+#         st.write("Core procedure [C2C MANUAL ADJUSTMENTS] executed successfully!")
 
-#         # Convert DataFrame to CSV in memory
-#         csv_buffer = StringIO()
-#         df_H.to_csv(csv_buffer, index=False)
-
-#         # Upload the CSV to Azure Blob Storage
-#         blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
-
-#         st.write("CSV exported successfully!")
-        
 #     except Exception as e:
-#         st.write(f"Error exporting data: {e}")
+#         st.write(f"Error: {e}")  # Display error message if any
+
+
+# # Query to fetch data from Snowflake
+# query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
+
+# # Load data into Pandas DataFrame
+# df = pd.read_sql(query, conn)
+
+# # Display the DataFrame using Streamlit
+# st.title('Snowflake Data Viewer')
+# st.write("Here is the data from Snowflake:")
+# st.dataframe(df)
 
 
 
-def export_csv(df_update):
-    # Initialize BlobServiceClient
-    blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
 
-    # Get the container client
-    container_client = blob_service_client.get_container_client(container="snfdb")
+# # Query to fetch data from Snowflake
+# query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Peter' and L1 is null
+# order by transaction_date desc;"""
 
-    # Create a blob client for the specific blob
-    blob_client = container_client.get_blob_client(blob="peter/inputs/input_hierarchy_peter.csv")
+# # Load data into Pandas DataFrame
+# df_mh = pd.read_sql(query_mh, conn)
 
-    # Download the blob's content as text
-    blob_data = blob_client.download_blob().content_as_text()
+# # Display the DataFrame using Streamlit
+# st.title('Record with Missing Hierarchy')
+# st.write("Transaction data with missing hierarchy:")
+# st.dataframe(df_mh)
 
-    # Convert the text data to a DataFrame
-    df = pd.read_csv(StringIO(blob_data),delimiter=";")
 
-    df.columns = df.columns.str.upper()
+# def export_csv(df_update):
+#     # Initialize BlobServiceClient
+#     blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
 
-    if df_update.empty:
-        return
+#     # Get the container client
+#     container_client = blob_service_client.get_container_client(container="snfdb")
+
+#     # Create a blob client for the specific blob
+#     blob_client = container_client.get_blob_client(blob="peter/inputs/input_hierarchy_peter.csv")
+
+#     # Download the blob's content as text
+#     blob_data = blob_client.download_blob().content_as_text()
+
+#     # Convert the text data to a DataFrame
+#     df = pd.read_csv(StringIO(blob_data),delimiter=";")
+
+#     df.columns = df.columns.str.upper()
+
+#     if df_update.empty:
+#         return
     
-    df_update = df_update[['PROD_HIERARCHY_ID','L1','L2','L3','LOAD_DATETIME']]
-    df_update = df_update.rename(columns={'LOAD_DATETIME': 'AZURE_INSERT_DATETIME'})
+#     df_update = df_update[['PROD_HIERARCHY_ID','L1','L2','L3','LOAD_DATETIME']]
+#     df_update = df_update.rename(columns={'LOAD_DATETIME': 'AZURE_INSERT_DATETIME'})
 
-    df_update.columns = df.columns
+#     df_update.columns = df.columns
 
-    df_combined = pd.concat([df, df_update], ignore_index=True)
-     # Convert DataFrame to CSV in memory
-    csv_buffer = StringIO()
-    df_combined.to_csv(csv_buffer, index=False, sep = ';')
+#     df_combined = pd.concat([df, df_update], ignore_index=True)
+#      # Convert DataFrame to CSV in memory
+#     csv_buffer = StringIO()
+#     df_combined.to_csv(csv_buffer, index=False, sep = ';')
 
-    # Upload the CSV to Azure Blob Storage
-    blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+#     # Upload the CSV to Azure Blob Storage
+#     blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
 
-    #st.write("CSV exported successfully!")
+#     #st.write("CSV exported successfully!")
     
-    # Display the DataFrame
-    return True
+#     # Display the DataFrame
+#     return True
 
 
 
 
-# Function to query data from Snowflake
-@st.cache_data  # Caches the data to avoid querying every time
-def load_data():
-        query = """with test as (
-        Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
-        where a.owner = 'Peter'
-        )
+# # Function to query data from Snowflake
+# @st.cache_data  # Caches the data to avoid querying every time
+# def load_data():
+#         query = """with test as (
+#         Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
+#         where a.owner = 'Peter'
+#         )
 
-        Select
-        --a.source_system,
-        MD5(a.prod_hierarchy) as HIERARCHY_HK,
-        a.prod_hierarchy as PROD_HIERARCHY_ID,
-        b.L1,
-        b.L2,
-        b.L3,
-        'Peter' as OWNER
+#         Select
+#         --a.source_system,
+#         MD5(a.prod_hierarchy) as HIERARCHY_HK,
+#         a.prod_hierarchy as PROD_HIERARCHY_ID,
+#         b.L1,
+#         b.L2,
+#         b.L3,
+#         'Peter' as OWNER
 
-        from test as a
-        left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter') as b
-        on a.prod_hierarchy = b.prod_hierarchy_id
-        where HIERARCHY_HK is null
-        order by 1,2"""
+#         from test as a
+#         left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter') as b
+#         on a.prod_hierarchy = b.prod_hierarchy_id
+#         where HIERARCHY_HK is null
+#         order by 1,2"""
         
-        df = pd.read_sql(query, conn)
-        return df
+#         df = pd.read_sql(query, conn)
+#         return df
 
-# Function to insert DataFrame back into Snowflake
-def insert_data(df):
-    conn.cursor().execute("USE SCHEMA CORE")
-    success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
-    if success:
-        st.success(f"Successfully inserted {nrows} rows into Snowflake!")
-        st.cache_data.clear()
-    else:
-        st.error("Failed to insert data.")
+# # Function to insert DataFrame back into Snowflake
+# def insert_data(df):
+#     conn.cursor().execute("USE SCHEMA CORE")
+#     success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
+#     if success:
+#         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
+#         st.cache_data.clear()
+#     else:
+#         st.error("Failed to insert data.")
 
-# Load data from Snowflake
-df = load_data()
+# # Load data from Snowflake
+# df = load_data()
 
-# Display editable DataFrame
-st.write("### Editable Table")
-edited_df = st.data_editor(df, num_rows="dynamic")
+# # Display editable DataFrame
+# st.write("### Editable Table")
+# edited_df = st.data_editor(df, num_rows="dynamic")
 
-# Button to insert updated data
-if st.button("Insert Data into Snowflake"):
-    edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
-    edited_df = edited_df[edited_df['L1'].notnull()]
-    insert_data(edited_df)
-    export_csv(edited_df)
+# # Button to insert updated data
+# if st.button("Insert Data into Snowflake"):
+#     edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
+#     edited_df = edited_df[edited_df['L1'].notnull()]
+#     insert_data(edited_df)
+#     export_csv(edited_df)
 
-# Add a "Refresh Cache" button
-if st.button("Refresh Cache"):
-    st.cache_data.clear()  # Clear the cache
-    st.success("Cache cleared!")
+# # Add a "Refresh Cache" button
+# if st.button("Refresh Cache"):
+#     st.cache_data.clear()  # Clear the cache
+#     st.success("Cache cleared!")
 
 
-# Close the cursor and connection
-cur.close()
-#conn.close()
+# # Close the cursor and connection
+# cur.close()
+# #conn.close()
 
 
 
