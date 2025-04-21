@@ -11,7 +11,7 @@ load_dotenv()
 from datetime import datetime
 import pytz  # Importing pytz for timezone handling
 import time
-from io import StringIO
+from io import StringIO 
 
 # Azure Key Vault 
 client_id = os.getenv('AZURE_CLIENT_ID')      
