@@ -26,8 +26,8 @@ jobs:
       - name: create .env file
         run: |
           touch .env
-          echo AZURE_CLIENT_ID =${{ secrets.AZURE_CLIENT_ID }} >> .env
-          echo AZURE_CLIENT_SECRET =${{ secrets.AZURE_CLIENT_SECRET }} >> .env
+          echo AZURE_CLIENT_ID =${{ secrets.CLIENT_ID_C0889116 }} >> .env
+          echo AZURE_CLIENT_SECRET =${{ secrets.SECRET_VALUE_FOR_1D5C3AF7 }} >> .env
           echo AZURE_TENANT_ID =${{ secrets.AZURE_TENANT_ID }} >> .env
           echo AZURE_VAULT_URL =${{ secrets.AZURE_VAULT_URL }} >> .env
           echo AZURE_STORAGE_URL =${{ secrets.AZURE_STORAGE_URL }} >> .env
