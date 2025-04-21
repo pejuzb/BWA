@@ -79,34 +79,34 @@ def upload_to_blob(file, filename):
 # Streamlit File Uploader for multiple files
 st.title("Upload Files to Azure Blob Storage")
 
-# uploaded_files = st.file_uploader("Choose files", type=['csv', 'txt', 'pdf', 'jpg', 'png'], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Choose files", type=['csv', 'txt', 'pdf', 'jpg', 'png'], accept_multiple_files=True)
 
-# if uploaded_files is not None:
-#     for uploaded_file in uploaded_files:
-#         # Get the file details
-#         file_details = {
-#             "filename": uploaded_file.name,
-#             "filetype": uploaded_file.type,
-#             "filesize": uploaded_file.size
-#         }
+if uploaded_files is not None:
+    for uploaded_file in uploaded_files:
+        # Get the file details
+        file_details = {
+            "filename": uploaded_file.name,
+            "filetype": uploaded_file.type,
+            "filesize": uploaded_file.size
+        }
 
-#         # Display file details
-#         #st.write(file_details)
+        # Display file details
+        #st.write(file_details)
 
-#         # Upload the file to Azure Blob Storage
-#         result_message = upload_to_blob(uploaded_file, uploaded_file.name)
-#         st.success(result_message)
+        # Upload the file to Azure Blob Storage
+        result_message = upload_to_blob(uploaded_file, uploaded_file.name)
+        st.success(result_message)
 
-# # Snowflake connection
-# conn = snowflake.connector.connect(
-#     user=secrets_get('snf-user-app'),
-#     password=secrets_get('snf-password-app'),
-#     account=secrets_get('snf-account'),
-#     warehouse='COMPUTE_WH',
-#     database='BUDGET',
-#     schema='RAW',
-#     role='PUBLIC'
-# )
+# Snowflake connection
+conn = snowflake.connector.connect(
+    user=secrets_get('snf-user-app'),
+    password=secrets_get('snf-password-app'),
+    account=secrets_get('snf-account'),
+    warehouse='COMPUTE_WH',
+    database='BUDGET',
+    schema='RAW',
+    role='PUBLIC'
+)
 
 
 # cur = conn.cursor()
