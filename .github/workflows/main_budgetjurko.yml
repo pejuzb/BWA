@@ -33,6 +33,8 @@ jobs:
           echo AZURE_STORAGE_URL =${{ secrets.AZURE_STORAGE_URL }} >> .env
           echo SECRET_VALUE_FOR_1D5C3AF7 =${{ secrets.SECRET_VALUE_FOR_1D5C3AF7 }} >> .env
           echo CLIENT_ID_C0889116 =${{ secrets.CLIENT_ID_C0889116 }} >> .env
+          echo SECRET_ID_1D5C3AF7 =${{ secrets.SECRET_ID_1D5C3AF7 }} >> .env
+
 
       - name: Print secret
         run: |
