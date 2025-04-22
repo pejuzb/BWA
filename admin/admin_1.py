@@ -53,6 +53,10 @@ print(x)
 print(y)
 print(z)
 
+st.write(x)
+st.write(y)
+st.write(z)
+
 
 # # Function to get secrets from Azure Key Vault
 # def secrets_get(secret_name):
