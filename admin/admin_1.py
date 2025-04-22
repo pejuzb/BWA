@@ -17,7 +17,7 @@ from io import StringIO
 # Azure Key Vault 
 client_id = os.getenv('AZURE_CLIENT_ID')      
 tenant_id = os.getenv('AZURE_TENANT_ID')
-client_secret = os.getenv('AZURE_CLIENT_SECRET')
+client_secret = os.getenv('AZURE_CLIENT_SECRET') 
 vault_url = os.getenv('AZURE_VAULT_URL')
 
 # Create a credential object
