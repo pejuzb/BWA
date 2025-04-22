@@ -32,17 +32,17 @@ def secrets_get(secret_name):
     try:
         secret_client = SecretClient(vault_url=vault_url, credential=credentials)
         secret = secret_client.get_secret(secret_name)
-        print(f"Successfully retrieved secret: {secret_name}")
+        st.write(f"Successfully retrieved secret: {secret_name}")
         return secret.value
     except ClientAuthenticationError as e:
-        print("Authentication failed. Please check your Azure credentials.")
-        print(e)
+        st.write("Authentication failed. Please check your Azure credentials.")
+        st.write(e)
     except HttpResponseError as e:
-        print("Failed to retrieve secret due to HTTP error.")
-        print(e)
+        st.write("Failed to retrieve secret due to HTTP error.")
+        st.write(e)
     except Exception as e:
-        print("An unexpected error occurred.")
-        print(e)
+        st.write("An unexpected error occurred.")
+        st.write(e)
 
 # Test it with a known secret name (adjust the name to one that exists in your vault)
 x = secrets_get("snf-user-app")
