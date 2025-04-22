@@ -46,16 +46,16 @@ def secrets_get(secret_name):
 
 # Test it with a known secret name (adjust the name to one that exists in your vault)
 x = secrets_get("snf-user-app")
-y = secrets_get("snf-password-app")
-z = secrets_get("snf-account")
+#y = secrets_get("snf-password-app")
+#z = secrets_get("snf-account")
 
 print(x)
-print(y)
-print(z)
+#print(y)
+#print(z)
 
 st.write(x)
-st.write(y)
-st.write(z)
+#st.write(y)
+#st.write(z)
 
 
 # # Function to get secrets from Azure Key Vault
