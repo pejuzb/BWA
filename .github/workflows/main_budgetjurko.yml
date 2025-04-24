@@ -35,13 +35,6 @@ jobs:
           echo CLIENT_ID_C0889116 =${{ secrets.CLIENT_ID_C0889116 }} >> .env
           echo SECRET_ID_1D5C3AF7 =${{ secrets.SECRET_ID_1D5C3AF7 }} >> .env
 
-      - name: Test Key Vault Access
-        run: |
-          az keyvault secret show --vault-name "https://kv-azure-budget.vault.azure.net/" --name "snf-user-app"
-        env:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Create and start virtual environment
         run: |
@@ -103,6 +96,14 @@ jobs:
       
       - name: Confirm Azure login
         run: az account show
+
+      - name: Test Key Vault Access
+        run: |
+          az keyvault secret show --vault-name "https://kv-azure-budget.vault.azure.net/" --name "snf-user-app"
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       
       # - name: Login to Azure
       #   uses: azure/login@v2
