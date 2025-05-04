@@ -66,7 +66,7 @@ with st.container(border=True):
         REPORTING_DATE,
         L1,
         ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE L1 <> 'TD Synnex' and YEAR >= YEAR(DATEADD(YEAR,-1,current_date)) and OWNER = 'Peter' 
+        WHERE L1 <> 'TD Synnex' and transaction_date >= date_trunc(month,dateadd(month,-12,current_date)) and OWNER = 'Peter' 
         GROUP BY ALL;""", conn)
     
     
@@ -124,7 +124,7 @@ with st.container(border=True):
     data_chart_2 = pd.read_sql("""Select 
         REPORTING_DATE,
         SUM(AMOUNT) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE YEAR >= YEAR(DATEADD(YEAR,-1,current_date)) and OWNER = 'Peter' 
+        WHERE transaction_date >= date_trunc(month,dateadd(month,-12,current_date)) and OWNER = 'Peter' 
         GROUP BY ALL;""", conn)
     
     
