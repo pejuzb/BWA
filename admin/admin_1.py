@@ -32,7 +32,7 @@ def secrets_get(secret_name):
     try:
         secret_client = SecretClient(vault_url=vault_url, credential=credentials)
         secret = secret_client.get_secret(secret_name)
-        st.write(f"Successfully retrieved secret: {secret_name}")
+        #st.write(f"Successfully retrieved secret: {secret_name}")
         return secret.value
     except ClientAuthenticationError as e:
         st.write("Authentication failed. Please check your Azure credentials.")
@@ -44,13 +44,6 @@ def secrets_get(secret_name):
         st.write("An unexpected error occurred.")
         st.write(e)
 
-
-
-# Function to get secrets from Azure Key Vault
-# def secrets_get(secret_name):
-#     secret_client = SecretClient(vault_url=vault_url, credential=credentials)
-#     secret = secret_client.get_secret(secret_name)
-#     return secret.value
 
 def upload_to_blob(file, filename):
     try:
