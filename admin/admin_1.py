@@ -127,7 +127,8 @@ cur = conn.cursor()
 if st.button("Recalculate Database"):
     try:
         cur.execute("CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
-       
+        st.write("Raw schema truncated!")
+        
         # Execute the stored procedures
         cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
         st.write("Raw procedure [REVOLUT] executed successfully!")
