@@ -47,10 +47,10 @@ def secrets_get(secret_name):
 
 
 # Function to get secrets from Azure Key Vault
-def secrets_get(secret_name):
-    secret_client = SecretClient(vault_url=vault_url, credential=credentials)
-    secret = secret_client.get_secret(secret_name)
-    return secret.value
+# def secrets_get(secret_name):
+#     secret_client = SecretClient(vault_url=vault_url, credential=credentials)
+#     secret = secret_client.get_secret(secret_name)
+#     return secret.value
 
 def upload_to_blob(file, filename):
     try:
