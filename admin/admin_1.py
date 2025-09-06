@@ -8,31 +8,31 @@ from dotenv import load_dotenv
 import snowflake.connector
 import pandas as pd
 from snowflake.connector.pandas_tools import write_pandas
+
 load_dotenv()
 from datetime import datetime
 import pytz  # Importing pytz for timezone handling
 import time
-from io import StringIO  
+from io import StringIO
 
-# Azure Key Vault 
-client_id = os.getenv('AZURE_CLIENT_ID')      
-tenant_id = os.getenv('AZURE_TENANT_ID')
-client_secret = os.getenv('AZURE_CLIENT_SECRET') 
-vault_url = os.getenv('AZURE_VAULT_URL')
+# Azure Key Vault
+client_id = os.getenv("AZURE_CLIENT_ID")
+tenant_id = os.getenv("AZURE_TENANT_ID")
+client_secret = os.getenv("AZURE_CLIENT_SECRET")
+vault_url = os.getenv("AZURE_VAULT_URL")
 
 # Create a credential object
 credentials = ClientSecretCredential(
-    client_id=client_id,
-    tenant_id=tenant_id,
-    client_secret=client_secret
+    client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
 )
+
 
 # Function to get secrets from Azure Key Vault
 def secrets_get(secret_name):
     try:
         secret_client = SecretClient(vault_url=vault_url, credential=credentials)
         secret = secret_client.get_secret(secret_name)
-        #st.write(f"Successfully retrieved secret: {secret_name}")
+        # st.write(f"Successfully retrieved secret: {secret_name}")
         return secret.value
     except ClientAuthenticationError as e:
         st.write("Authentication failed. Please check your Azure credentials.")
@@ -48,18 +48,20 @@ def secrets_get(secret_name):
 def upload_to_blob(file, filename):
     try:
         # Create a blob service client using the connection string
-        blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+        blob_service_client = BlobServiceClient(
+            account_url=secrets_get("sc-storage"), credential=credentials
+        )
 
         # Get a container client
-        blob_client = blob_service_client.get_container_client(container='snfdb')
+        blob_client = blob_service_client.get_container_client(container="snfdb")
 
         # Define the folder path within the container
         folder_path = "peter/inputs/"
 
         # Check if the filename contains 'pohyby' or 'account-statement'
-        if 'pohyby' in filename or 'account-statement' in filename:
+        if "pohyby" in filename or "account-statement" in filename:
             # Determine the string to look for in existing blobs based on the filename
-            file_keyword = 'pohyby' if 'pohyby' in filename else 'account-statement'
+            file_keyword = "pohyby" if "pohyby" in filename else "account-statement"
 
             # Check for existing files containing the specific keyword in 'peter/inputs'
             existing_blobs = blob_client.list_blobs(name_starts_with=folder_path)
@@ -67,10 +69,14 @@ def upload_to_blob(file, filename):
                 if file_keyword in existing_blob.name:
                     # Move the existing file to the 'peter/processed_files' folder
                     source_blob = existing_blob.name
-                    target_blob = f"peter/processed_files/{existing_blob.name.split('/')[-1]}"
+                    target_blob = (
+                        f"peter/processed_files/{existing_blob.name.split('/')[-1]}"
+                    )
 
                     # Copy the existing blob to the new location
-                    blob_client.get_blob_client(target_blob).start_copy_from_url(blob_client.get_blob_client(source_blob).url)
+                    blob_client.get_blob_client(target_blob).start_copy_from_url(
+                        blob_client.get_blob_client(source_blob).url
+                    )
 
                     # Delete the original blob
                     blob_client.delete_blob(source_blob)
@@ -84,15 +90,17 @@ def upload_to_blob(file, filename):
         # Upload the file content to the blob within 'peter/inputs' folder
         blob_client.upload_blob(data=file_data, name=full_filename, overwrite=True)
         return f"File {filename} uploaded successfully to 'peter/inputs'!"
-    
+
     except Exception as e:
         return f"Error uploading file: {e}"
-    
+
 
 # Streamlit File Uploader for multiple files
 st.title("Upload Files to Azure Blob Storage")
 
-uploaded_files = st.file_uploader("Choose files", type=['csv', 'txt', 'pdf', 'jpg', 'png'], accept_multiple_files=True)
+uploaded_files = st.file_uploader(
+    "Choose files", type=["csv", "txt", "pdf", "jpg", "png"], accept_multiple_files=True
+)
 
 if uploaded_files is not None:
     for uploaded_file in uploaded_files:
@@ -100,11 +108,11 @@ if uploaded_files is not None:
         file_details = {
             "filename": uploaded_file.name,
             "filetype": uploaded_file.type,
-            "filesize": uploaded_file.size
+            "filesize": uploaded_file.size,
         }
 
         # Display file details
-        #st.write(file_details)
+        # st.write(file_details)
 
         # Upload the file to Azure Blob Storage
         result_message = upload_to_blob(uploaded_file, uploaded_file.name)
@@ -112,13 +120,13 @@ if uploaded_files is not None:
 
 # Snowflake connection
 conn = snowflake.connector.connect(
-    user=secrets_get('snf-user-app'),
-    password=secrets_get('snf-password-app'),
-    account=secrets_get('snf-account'),
-    warehouse='COMPUTE_WH',
-    database='BUDGET',
-    schema='RAW',
-    role='PUBLIC'
+    user=secrets_get("snf-user-app"),
+    password=secrets_get("snf-password-app"),
+    account=secrets_get("snf-account"),
+    warehouse="COMPUTE_WH",
+    database="BUDGET",
+    schema="RAW",
+    role="PUBLIC",
 )
 
 
@@ -128,7 +136,7 @@ if st.button("Recalculate Database"):
     try:
         cur.execute("CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
         st.write("Raw schema truncated!")
-        
+
         # Execute the stored procedures
         cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
         st.write("Raw procedure [REVOLUT] executed successfully!")
@@ -162,11 +170,9 @@ query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
 df = pd.read_sql(query, conn)
 
 # Display the DataFrame using Streamlit
-st.title('Snowflake Data Viewer')
+st.title("Snowflake Data Viewer")
 st.write("Here is the data from Snowflake:")
 st.dataframe(df)
-
-
 
 
 # Query to fetch data from Snowflake
@@ -177,57 +183,59 @@ order by transaction_date desc;"""
 df_mh = pd.read_sql(query_mh, conn)
 
 # Display the DataFrame using Streamlit
-st.title('Record with Missing Hierarchy')
+st.title("Record with Missing Hierarchy")
 st.write("Transaction data with missing hierarchy:")
 st.dataframe(df_mh)
 
 
 def export_csv(df_update):
     # Initialize BlobServiceClient
-    blob_service_client = BlobServiceClient(account_url=secrets_get("sc-storage"), credential=credentials)
+    blob_service_client = BlobServiceClient(
+        account_url=secrets_get("sc-storage"), credential=credentials
+    )
 
     # Get the container client
     container_client = blob_service_client.get_container_client(container="snfdb")
 
     # Create a blob client for the specific blob
-    blob_client = container_client.get_blob_client(blob="peter/inputs/input_hierarchy_peter.csv")
+    blob_client = container_client.get_blob_client(
+        blob="peter/inputs/input_hierarchy_peter.csv"
+    )
 
     # Download the blob's content as text
     blob_data = blob_client.download_blob().content_as_text()
 
     # Convert the text data to a DataFrame
-    df = pd.read_csv(StringIO(blob_data),delimiter=";")
+    df = pd.read_csv(StringIO(blob_data), delimiter=";")
 
     df.columns = df.columns.str.upper()
 
     if df_update.empty:
         return
-    
-    df_update = df_update[['PROD_HIERARCHY_ID','L1','L2','L3','LOAD_DATETIME']]
-    df_update = df_update.rename(columns={'LOAD_DATETIME': 'AZURE_INSERT_DATETIME'})
+
+    df_update = df_update[["PROD_HIERARCHY_ID", "L1", "L2", "L3", "LOAD_DATETIME"]]
+    df_update = df_update.rename(columns={"LOAD_DATETIME": "AZURE_INSERT_DATETIME"})
 
     df_update.columns = df.columns
 
     df_combined = pd.concat([df, df_update], ignore_index=True)
-     # Convert DataFrame to CSV in memory
+    # Convert DataFrame to CSV in memory
     csv_buffer = StringIO()
-    df_combined.to_csv(csv_buffer, index=False, sep = ';')
+    df_combined.to_csv(csv_buffer, index=False, sep=";")
 
     # Upload the CSV to Azure Blob Storage
     blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
 
-    #st.write("CSV exported successfully!")
-    
+    # st.write("CSV exported successfully!")
+
     # Display the DataFrame
     return True
-
-
 
 
 # Function to query data from Snowflake
 @st.cache_data  # Caches the data to avoid querying every time
 def load_data():
-        query = """with test as (
+    query = """with test as (
         Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
         where a.owner = 'Peter'
         )
@@ -246,19 +254,21 @@ def load_data():
         on a.prod_hierarchy = b.prod_hierarchy_id
         where HIERARCHY_HK is null
         order by 1,2"""
-        
-        df = pd.read_sql(query, conn)
-        return df
+
+    df = pd.read_sql(query, conn)
+    return df
+
 
 # Function to insert DataFrame back into Snowflake
 def insert_data(df):
     conn.cursor().execute("USE SCHEMA CORE")
-    success, nchunks, nrows, _ = write_pandas(conn, df, 'HIERARCHY')
+    success, nchunks, nrows, _ = write_pandas(conn, df, "HIERARCHY")
     if success:
         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
         st.cache_data.clear()
     else:
         st.error("Failed to insert data.")
+
 
 # Load data from Snowflake
 df = load_data()
@@ -269,8 +279,10 @@ edited_df = st.data_editor(df, num_rows="dynamic")
 
 # Button to insert updated data
 if st.button("Insert Data into Snowflake"):
-    edited_df['LOAD_DATETIME'] = datetime.now(pytz.timezone('Europe/Prague')).strftime('%Y-%m-%d %H:%M:%S')
-    edited_df = edited_df[edited_df['L1'].notnull()]
+    edited_df["LOAD_DATETIME"] = datetime.now(pytz.timezone("Europe/Prague")).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+    edited_df = edited_df[edited_df["L1"].notnull()]
     insert_data(edited_df)
     export_csv(edited_df)
 
@@ -282,7 +294,4 @@ if st.button("Refresh Cache"):
 
 # Close the cursor and connection
 cur.close()
-#conn.close()
-
-
-
+# conn.close()
