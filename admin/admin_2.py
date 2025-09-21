@@ -66,7 +66,7 @@ with st.container(border=True):
         REPORTING_DATE,
         L1,
         ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE L1 <> 'TD Synnex' and transaction_date >= date_trunc(month,dateadd(month,-12,current_date)) and OWNER = 'Peter' 
+        WHERE L1 <> 'Income' and transaction_date >= date_trunc(month,dateadd(month,-12,current_date)) and OWNER = 'Peter' 
         GROUP BY ALL;""", conn)
     
     
