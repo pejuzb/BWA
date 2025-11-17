@@ -164,7 +164,7 @@ if st.button("Recalculate Database"):
 
 
 # Query to fetch data from Snowflake
-query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
+query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'" 
 
 # Load data into Pandas DataFrame
 df = pd.read_sql(query, conn)
