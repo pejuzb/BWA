@@ -96,7 +96,7 @@ def upload_to_blob(file, filename):
 
 
 # Streamlit File Uploader for multiple files
-st.title("Upload Files to Azure Blob Storage")
+st.title("Upload Files to Azure Blob Storage - TEST PETER")
 
 uploaded_files = st.file_uploader(
     "Choose files", type=["csv", "txt", "pdf", "jpg", "png"], accept_multiple_files=True
