@@ -21,6 +21,13 @@ tenant_id = os.getenv("AZURE_TENANT_ID")
 client_secret = os.getenv("AZURE_CLIENT_SECRET")
 vault_url = os.getenv("AZURE_VAULT_URL")
 
+
+# What to do after secret expiration
+# 1. generate new client secret in Azure portal (App registrations -> your app -> Certificates & secrets)
+# 2. update AZURE CLIENT_SECRET in App Services -> Settings -> Environment variables
+# 3. update secrets in Git Hub Actions secrets 
+# 4. restart the app service
+
 # Create a credential object
 credentials = ClientSecretCredential(
     client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
@@ -96,7 +103,7 @@ def upload_to_blob(file, filename):
 
 
 # Streamlit File Uploader for multiple files
-st.title("Upload Files to Azure Blob Storage - TEST PETER")
+st.title("Upload Files to Azure Blob Storage")
 
 uploaded_files = st.file_uploader(
     "Choose files", type=["csv", "txt", "pdf", "jpg", "png"], accept_multiple_files=True
