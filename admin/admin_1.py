@@ -125,17 +125,27 @@ if uploaded_files is not None:
         result_message = upload_to_blob(uploaded_file, uploaded_file.name)
         st.success(result_message)
 
-# Snowflake connection
+# Snowflake connection OLD
+# conn = snowflake.connector.connect(
+#     user=secrets_get("snf-user-app"),
+#     password=secrets_get("snf-password-app"),
+#     account=secrets_get("snf-account"),
+#     warehouse="COMPUTE_WH",
+#     database="BUDGET",
+#     schema="RAW",
+#     role="PUBLIC",
+# )
+
 conn = snowflake.connector.connect(
-    user=secrets_get("snf-user-app"),
-    password=secrets_get("snf-password-app"),
+    user=secrets_get("svc-snf-account"),
+    #password=secrets_get("snf-password-app"),
+    private_key = secrets_get("svc-snf-private-key"),
     account=secrets_get("snf-account"),
     warehouse="COMPUTE_WH",
     database="BUDGET",
     schema="RAW",
     role="PUBLIC",
 )
-
 
 cur = conn.cursor()
 
