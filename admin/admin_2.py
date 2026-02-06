@@ -14,6 +14,9 @@ import seaborn as sns
 import matplotlib.ticker as ticker
 import altair as alt
 
+from admin.utils import *
+
+
 
 # Azure Key Vault
 client_id = os.getenv('AZURE_CLIENT_ID')
@@ -35,15 +38,25 @@ def secrets_get(secret_name):
     return secret.value
 
 
-# Snowflake connection
+# Snowflake connection OLD
+# conn = snowflake.connector.connect(
+#     user=secrets_get('snf-user-app'),
+#     password=secrets_get('snf-password-app'),
+#     account=secrets_get('snf-account'),
+#     warehouse='COMPUTE_WH',
+#     database='BUDGET',
+#     schema='RAW',
+#     role='PUBLIC'
+# )
+
 conn = snowflake.connector.connect(
-    user=secrets_get('snf-user-app'),
-    password=secrets_get('snf-password-app'),
-    account=secrets_get('snf-account'),
-    warehouse='COMPUTE_WH',
-    database='BUDGET',
-    schema='RAW',
-    role='PUBLIC'
+    user=secrets_get('svc-snf-user'),
+    private_key=pem_to_snowflake_der(normalize_pem(secrets_get('svc-snf-rsa-key'))),          
+    account=secrets_get('svc-snf-acc'),
+    warehouse="COMPUTE_WH",
+    database="BUDGET",
+    schema="RAW",
+    role="PUBLIC",
 )
 
 
