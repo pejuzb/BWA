@@ -14,6 +14,8 @@ from datetime import datetime
 import pytz  # Importing pytz for timezone handling
 import time
 from io import StringIO
+from utils import *
+
 
 # Azure Key Vault
 client_id = os.getenv("AZURE_CLIENT_ID")
@@ -137,10 +139,9 @@ if uploaded_files is not None:
 # )
 
 conn = snowflake.connector.connect(
-    user=secrets_get("svc-snf-account"),
-    #password=secrets_get("snf-password-app"),
-    private_key = secrets_get("svc-snf-private-key"),
-    account=secrets_get("snf-account"),
+    user=secrets_get('svc-snf-user'),
+    private_key=pem_to_snowflake_der(normalize_pem(secrets_get('svc-snf-rsa-key'))),          
+    account=secrets_get('svc-snf-acc'),
     warehouse="COMPUTE_WH",
     database="BUDGET",
     schema="RAW",
