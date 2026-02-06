@@ -14,7 +14,17 @@ from datetime import datetime
 import pytz  # Importing pytz for timezone handling
 import time
 from io import StringIO
-from utils import *
+
+# Ensure project root is on PYTHONPATH (Streamlit deployments may not include it by default)
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+# Import only what we use from utils (avoid `import *`)
+from utils import normalize_pem, pem_to_snowflake_der
 
 
 # Azure Key Vault
