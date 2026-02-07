@@ -176,7 +176,7 @@ def load_data():
 # Function to insert DataFrame back into Snowflake
 def insert_data(df):
     #conn.cursor().execute("USE SCHEMA CORE")
-    success, nchunks, nrows, _ = write_pandas(snowflake_connection(), df, "CORE.HIERARCHY")
+    success, nchunks, nrows, _ = write_pandas(snowflake_connection(), df, table_name= "HIERARCHY", schema="CORE")
     if success:
         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
         st.cache_data.clear()
