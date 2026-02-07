@@ -22,46 +22,54 @@ if uploaded_files is not None:
         st.success(result_message)
 
 
-conn = snowflake.connector.connect(
-    user=secrets_get('svc-snf-user'),
-    private_key=pem_to_snowflake_der(normalize_pem(secrets_get('svc-snf-rsa-key'))),          
-    account=secrets_get('svc-snf-acc'),
-    warehouse="COMPUTE_WH",
-    database="BUDGET",
-    schema="RAW",
-    role="PUBLIC",
-)
+# conn = snowflake.connector.connect(
+#     user=secrets_get('svc-snf-user'),
+#     private_key=pem_to_snowflake_der(normalize_pem(secrets_get('svc-snf-rsa-key'))),          
+#     account=secrets_get('svc-snf-acc'),
+#     warehouse="COMPUTE_WH",
+#     database="BUDGET",
+#     schema="RAW",
+#     role="PUBLIC",
+# )
 
-cur = snowflake_connection().cursor()
+# cur = snowflake_connection().cursor()
 
 
 
 
 if st.button("Recalculate Database"):
     try:
-        cur.execute("CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
+        #cur.execute("CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
+        snowflake_run_query(azure_authenticate(), "CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
         st.write("Raw schema truncated!")
 
         # Execute the stored procedures
-        cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
+        #cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
+        snowflake_run_query(azure_authenticate(), "CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
         st.write("Raw procedure [REVOLUT] executed successfully!")
 
-        cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
+        #cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
+        snowflake_run_query(azure_authenticate(), "CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
         st.write("Raw procedure [CSOB] executed successfully!")
 
-        cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
+        #cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
+        snowflake_run_query(azure_authenticate(), "CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
         st.write("Raw procedure [HIERARCHY] executed successfully!")
 
-        cur.execute("CALL BUDGET.CORE.RAW2CORE_REV();")
+        #cur.execute("CALL BUDGET.CORE.RAW2CORE_REV();")
+        snowflake_run_query(azure_authenticate(), "CALL BUDGET.CORE.RAW2CORE_REV();")
         st.write("Core procedure [REVOLUT] executed successfully!")
 
-        cur.execute("CALL BUDGET.CORE.RAW2CORE_CSOB();")
+        #cur.execute("CALL BUDGET.CORE.RAW2CORE_CSOB();")
+        snowflake_run_query(azure_authenticate(), "CALL BUDGET.CORE.RAW2CORE_CSOB();")
         st.write("Core procedure [CSOB] executed successfully!")
 
-        cur.execute("CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
+        #cur.execute("CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
+        snowflake_run_query(azure_authenticate(), "CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
         st.write("Core procedure [HIERARCHY] executed successfully!")
 
-        cur.execute("CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
+        #cur.execute("CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
+        snowflake_run_query(azure_authenticate(), "CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
         st.write("Core procedure [C2C MANUAL ADJUSTMENTS] executed successfully!")
 
     except Exception as e:
@@ -72,7 +80,6 @@ if st.button("Recalculate Database"):
 query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'" 
 
 # Load data into Pandas DataFrame
-#df = pd.read_sql(query, conn)
 df = snowflake_run_query_df(snowflake_connection(), query)
 
 
@@ -87,7 +94,6 @@ query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Peter' and L1 is n
 order by transaction_date desc;"""
 
 # Load data into Pandas DataFrame
-#df_mh = pd.read_sql(query_mh, conn)
 df_mh = snowflake_run_query_df(snowflake_connection(), query_mh)
 
 # Display the DataFrame using Streamlit
@@ -169,8 +175,8 @@ def load_data():
 
 # Function to insert DataFrame back into Snowflake
 def insert_data(df):
-    conn.cursor().execute("USE SCHEMA CORE")
-    success, nchunks, nrows, _ = write_pandas(conn, df, "HIERARCHY")
+    #conn.cursor().execute("USE SCHEMA CORE")
+    success, nchunks, nrows, _ = write_pandas(snowflake_connection(), df, "CORE.HIERARCHY")
     if success:
         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
         st.cache_data.clear()
@@ -201,5 +207,5 @@ if st.button("Refresh Cache"):
 
 
 # Close the cursor and connection
-cur.close()
+#cur.close()
 # conn.close()
