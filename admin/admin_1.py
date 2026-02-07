@@ -87,7 +87,8 @@ query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Peter' and L1 is n
 order by transaction_date desc;"""
 
 # Load data into Pandas DataFrame
-df_mh = pd.read_sql(query_mh, conn)
+#df_mh = pd.read_sql(query_mh, conn)
+df_mh = snowflake_run_query_df(snowflake_connection(), query_mh)
 
 # Display the DataFrame using Streamlit
 st.title("Record with Missing Hierarchy")
@@ -162,7 +163,7 @@ def load_data():
         where HIERARCHY_HK is null
         order by 1,2"""
 
-    df = pd.read_sql(query, conn)
+    df = snowflake_run_query_df(snowflake_connection(), query)
     return df
 
 
