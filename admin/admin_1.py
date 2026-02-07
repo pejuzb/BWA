@@ -1,10 +1,10 @@
 from admin.utils import *
 
 # Azure Key Vault
-client_id = os.getenv("AZURE_CLIENT_ID")
-tenant_id = os.getenv("AZURE_TENANT_ID")
-client_secret = os.getenv("AZURE_CLIENT_SECRET")
-vault_url = os.getenv("AZURE_VAULT_URL")
+# client_id = os.getenv("AZURE_CLIENT_ID")
+# tenant_id = os.getenv("AZURE_TENANT_ID")
+# client_secret = os.getenv("AZURE_CLIENT_SECRET")
+# vault_url = os.getenv("AZURE_VAULT_URL")
 
 
 # What to do after secret expiration
@@ -14,9 +14,9 @@ vault_url = os.getenv("AZURE_VAULT_URL")
 # 4. restart the app service
 
 # Create a credential object
-credentials = ClientSecretCredential(
-    client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
-)
+# credentials = ClientSecretCredential(
+#     client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
+# )
 
 # Streamlit File Uploader for multiple files
 st.title("Upload Files to Azure Blob Storage")
@@ -111,7 +111,7 @@ st.dataframe(df_mh)
 def export_csv(df_update):
     # Initialize BlobServiceClient
     blob_service_client = BlobServiceClient(
-        account_url=secrets_get("sc-storage"), credential=credentials
+        account_url=secrets_get("sc-storage"), credential=azure_authenticate()
     )
 
     # Get the container client

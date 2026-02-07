@@ -11,6 +11,10 @@ import pandas as pd
 import pytz  # timezone handling
 import snowflake.connector
 import streamlit as st
+import altair as alt
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import seaborn as sns
 from azure.core.exceptions import ClientAuthenticationError, HttpResponseError
 from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
@@ -19,15 +23,38 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from dotenv import load_dotenv
 from snowflake.connector.pandas_tools import write_pandas
+from st_aggrid import AgGrid, GridOptionsBuilder
 
 # Load env variables
 load_dotenv()
 
 
+# Azure Key Vault
+client_id = os.getenv("AZURE_CLIENT_ID")
+tenant_id = os.getenv("AZURE_TENANT_ID")
+client_secret = os.getenv("AZURE_CLIENT_SECRET")
+vault_url = os.getenv("AZURE_VAULT_URL")
+
+
+def azure_authenticate():
+    try:
+        credentials = ClientSecretCredential(
+            client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
+        )
+        # st.write("Successfully authenticated with Azure Key Vault.")
+        return credentials
+    except ClientAuthenticationError as e:
+        st.write("Authentication failed. Please check your Azure credentials.")
+        st.write(e)
+    except Exception as e:
+        st.write("An unexpected error occurred during Azure authentication.")
+        st.write(e)
+
+
 # Function to get secrets from Azure Key Vault
 def secrets_get(secret_name):
     try:
-        secret_client = SecretClient(vault_url=vault_url, credential=credentials)
+        secret_client = SecretClient(vault_url=vault_url, credential=azure_authenticate())
         secret = secret_client.get_secret(secret_name)
         # st.write(f"Successfully retrieved secret: {secret_name}")
         return secret.value
@@ -47,7 +74,7 @@ def upload_to_blob(file, filename):
     try:
         # Create a blob service client using the connection string
         blob_service_client = BlobServiceClient(
-            account_url=secrets_get("sc-storage"), credential=credentials
+            account_url=secrets_get("sc-storage"), credential=azure_authenticate()
         )
 
         # Get a container client
