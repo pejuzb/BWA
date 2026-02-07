@@ -1,23 +1,5 @@
 from admin.utils import *
 
-# Azure Key Vault
-# client_id = os.getenv("AZURE_CLIENT_ID")
-# tenant_id = os.getenv("AZURE_TENANT_ID")
-# client_secret = os.getenv("AZURE_CLIENT_SECRET")
-# vault_url = os.getenv("AZURE_VAULT_URL")
-
-
-# What to do after secret expiration
-# 1. generate new client secret in Azure portal (App registrations -> your app -> Certificates & secrets)
-# 2. update AZURE CLIENT_SECRET in App Services -> Settings -> Environment variables
-# 3. update secrets in Git Hub Actions secrets 
-# 4. restart the app service
-
-# Create a credential object
-# credentials = ClientSecretCredential(
-#     client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
-# )
-
 # Streamlit File Uploader for multiple files
 st.title("Upload Files to Azure Blob Storage")
 
@@ -50,7 +32,10 @@ conn = snowflake.connector.connect(
     role="PUBLIC",
 )
 
-cur = conn.cursor()
+cur = snowflake_connection().cursor()
+
+
+
 
 if st.button("Recalculate Database"):
     try:
@@ -87,7 +72,9 @@ if st.button("Recalculate Database"):
 query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'" 
 
 # Load data into Pandas DataFrame
-df = pd.read_sql(query, conn)
+#df = pd.read_sql(query, conn)
+df = snowflake_run_query_df(snowflake_connection(), query)
+
 
 # Display the DataFrame using Streamlit
 st.title("Snowflake Data Viewer")

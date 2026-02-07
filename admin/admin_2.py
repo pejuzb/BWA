@@ -1,53 +1,4 @@
-import streamlit as st
-from azure.storage.blob import BlobServiceClient
-import os
-from azure.identity import ClientSecretCredential
-from azure.keyvault.secrets import SecretClient
-from dotenv import load_dotenv
-import snowflake.connector
-import pandas as pd
-from snowflake.connector.pandas_tools import write_pandas
-load_dotenv()
-from st_aggrid import AgGrid, GridOptionsBuilder  #add import for GridOptionsBuilder
-import matplotlib.pyplot as plt
-import seaborn as sns
-import matplotlib.ticker as ticker
-import altair as alt
-
 from admin.utils import *
-
-
-
-# Azure Key Vault
-client_id = os.getenv('AZURE_CLIENT_ID')
-tenant_id = os.getenv('AZURE_TENANT_ID')
-client_secret = os.getenv('AZURE_CLIENT_SECRET')
-vault_url = os.getenv('AZURE_VAULT_URL')
-
-# Create a credential object
-credentials = ClientSecretCredential(
-    client_id=client_id,
-    tenant_id=tenant_id,
-    client_secret=client_secret
-)
-
-# Function to get secrets from Azure Key Vault
-def secrets_get(secret_name):
-    secret_client = SecretClient(vault_url=vault_url, credential=credentials)
-    secret = secret_client.get_secret(secret_name)
-    return secret.value
-
-
-# Snowflake connection OLD
-# conn = snowflake.connector.connect(
-#     user=secrets_get('snf-user-app'),
-#     password=secrets_get('snf-password-app'),
-#     account=secrets_get('snf-account'),
-#     warehouse='COMPUTE_WH',
-#     database='BUDGET',
-#     schema='RAW',
-#     role='PUBLIC'
-# )
 
 conn = snowflake.connector.connect(
     user=secrets_get('svc-snf-user'),
@@ -101,35 +52,6 @@ with st.container(border=True):
     
     # Display the chart in Streamlit
     st.altair_chart(chart, use_container_width=True)
-
-# with st.container(border=True):
-#     st.write("Chart of Monthly Income Sources")  
-#     data_chart_incom = pd.read_sql("""Select SUM(amount) as INCOME,
-#                              L1 as TYPE_OF_INCOME, 
-#                              REPORTING_DATE from BUDGET.MART.BUDGET 
-#                              where owner = 'Peter' and L1 = 'TD Synnex'
-#                              group by all;""", conn)
-    
-    
-#     # Create an Altair bar chart
-#     chart = alt.Chart(data_chart_incom).mark_bar(size=25).encode(
-#         x='REPORTING_DATE:T',
-#         y='INCOME:Q',
-#         color='TYPE_OF_INCOME:N'
-#     ).properties(
-#         width=600,  # Set the width of the chart
-#         height=400  # Set the height of the chart
-#     ).configure_axis(
-#         labelFontSize=14,  # Adjust axis label size
-#         titleFontSize=16,  # Adjust axis title size
-#     ).configure_legend(
-#         titleFontSize=16,  # Adjust legend title size
-#         labelFontSize=14   # Adjust legend label size
-#     )
-    
-#     # Display the chart in Streamlit
-#     st.altair_chart(chart, use_container_width=True)
-
 
 with st.container(border=True):
     st.write("Chart of Monthly P&L")  

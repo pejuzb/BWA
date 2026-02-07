@@ -29,6 +29,12 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 load_dotenv()
 
 
+# What to do after secret expiration
+# 1. generate new client secret in Azure portal (App registrations -> your app -> Certificates & secrets)
+# 2. update AZURE CLIENT_SECRET in App Services -> Settings -> Environment variables
+# 3. update secrets in Git Hub Actions secrets 
+# 4. restart the app service
+
 # Azure Key Vault
 client_id = os.getenv("AZURE_CLIENT_ID")
 tenant_id = os.getenv("AZURE_TENANT_ID")
@@ -67,7 +73,6 @@ def secrets_get(secret_name):
     except Exception as e:
         st.write("An unexpected error occurred.")
         st.write(e)
-
 
 
 def upload_to_blob(file, filename):
@@ -151,3 +156,38 @@ def normalize_pem(pem_text: str) -> bytes:
         pem_text = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(wrap(b64, 64)) + "\n-----END PRIVATE KEY-----\n"
 
     return pem_text.encode("utf-8")
+
+
+# Snowflake Connection
+def snowflake_connection():
+    try:
+        conn = snowflake.connector.connect(
+            user=secrets_get('svc-snf-user'),
+            private_key=pem_to_snowflake_der(normalize_pem(secrets_get('svc-snf-rsa-key'))),          
+            account=secrets_get('svc-snf-acc'),
+            warehouse="COMPUTE_WH",
+            database="BUDGET",
+            schema="RAW",
+            role="PUBLIC",
+        )
+        return conn
+    except Exception as e:
+        st.write("Error connecting to Snowflake:")
+        st.write(e)
+        return None
+    
+
+def snowflake_run_query(conn, sql: str, params=None):
+    with conn.cursor() as cur:
+        cur.execute(sql, params) if params else cur.execute(sql)
+        return cur.fetchall()
+    
+
+def snowflake_run_query_df(conn, sql: str, params=None) -> pd.DataFrame:
+    with conn.cursor() as cur:
+        cur.execute(sql, params) if params else cur.execute(sql)
+        return pd.DataFrame.from_records(
+            cur.fetchall(),
+            columns=[c[0] for c in cur.description],
+        )
+
