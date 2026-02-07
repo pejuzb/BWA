@@ -10,7 +10,6 @@ conn = snowflake.connector.connect(
     role="PUBLIC",
 )
 
-
 cur = conn.cursor()
 
 # Query to fetch data from Snowflake

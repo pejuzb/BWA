@@ -40,36 +40,36 @@ if uploaded_files is not None:
 if st.button("Recalculate Database"):
     try:
         #cur.execute("CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
-        snowflake_run_query(azure_authenticate(), "CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
+        snowflake_run_query(snowflake_connection(), "CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
         st.write("Raw schema truncated!")
 
         # Execute the stored procedures
         #cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
-        snowflake_run_query(azure_authenticate(), "CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
+        snowflake_run_query(snowflake_connection(), "CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
         st.write("Raw procedure [REVOLUT] executed successfully!")
 
         #cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
-        snowflake_run_query(azure_authenticate(), "CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
+        snowflake_run_query(snowflake_connection(), "CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
         st.write("Raw procedure [CSOB] executed successfully!")
 
         #cur.execute("CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
-        snowflake_run_query(azure_authenticate(), "CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
+        snowflake_run_query(snowflake_connection(), "CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
         st.write("Raw procedure [HIERARCHY] executed successfully!")
 
         #cur.execute("CALL BUDGET.CORE.RAW2CORE_REV();")
-        snowflake_run_query(azure_authenticate(), "CALL BUDGET.CORE.RAW2CORE_REV();")
+        snowflake_run_query(snowflake_connection(), "CALL BUDGET.CORE.RAW2CORE_REV();")
         st.write("Core procedure [REVOLUT] executed successfully!")
 
         #cur.execute("CALL BUDGET.CORE.RAW2CORE_CSOB();")
-        snowflake_run_query(azure_authenticate(), "CALL BUDGET.CORE.RAW2CORE_CSOB();")
+        snowflake_run_query(snowflake_connection(), "CALL BUDGET.CORE.RAW2CORE_CSOB();")
         st.write("Core procedure [CSOB] executed successfully!")
 
         #cur.execute("CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
-        snowflake_run_query(azure_authenticate(), "CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
+        snowflake_run_query(snowflake_connection(), "CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
         st.write("Core procedure [HIERARCHY] executed successfully!")
 
         #cur.execute("CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
-        snowflake_run_query(azure_authenticate(), "CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
+        snowflake_run_query(snowflake_connection(), "CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
         st.write("Core procedure [C2C MANUAL ADJUSTMENTS] executed successfully!")
 
     except Exception as e:
