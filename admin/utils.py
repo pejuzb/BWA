@@ -158,36 +158,92 @@ def normalize_pem(pem_text: str) -> bytes:
     return pem_text.encode("utf-8")
 
 
-# Snowflake Connection
-def snowflake_connection():
-    try:
-        conn = snowflake.connector.connect(
-            user=secrets_get('svc-snf-user'),
-            private_key=pem_to_snowflake_der(normalize_pem(secrets_get('svc-snf-rsa-key'))),          
-            account=secrets_get('svc-snf-acc'),
-            warehouse="COMPUTE_WH",
-            database="BUDGET",
-            schema="RAW",
-            role="PUBLIC",
-        )
-        return conn
-    except Exception as e:
-        st.write("Error connecting to Snowflake:")
-        st.write(e)
-        return None
+-- # Snowflake Connection
+-- def snowflake_connection():
+--     try:
+--         conn = snowflake.connector.connect(
+--             user=secrets_get('svc-snf-user'),
+--             private_key=pem_to_snowflake_der(normalize_pem(secrets_get('svc-snf-rsa-key'))),          
+--             account=secrets_get('svc-snf-acc'),
+--             warehouse="COMPUTE_WH",
+--             database="BUDGET",
+--             schema="RAW",
+--             role="PUBLIC",
+--         )
+--         return conn
+--     except Exception as e:
+--         st.write("Error connecting to Snowflake:")
+--         st.write(e)
+--         return None
     
 
-def snowflake_run_query(conn, sql: str, params=None):
-    with conn.cursor() as cur:
-        cur.execute(sql, params) if params else cur.execute(sql)
-        return cur.fetchall()
+-- def snowflake_run_query(conn, sql: str, params=None):
+--     with conn.cursor() as cur:
+--         cur.execute(sql, params) if params else cur.execute(sql)
+--         return cur.fetchall()
     
 
-def snowflake_run_query_df(conn, sql: str, params=None) -> pd.DataFrame:
-    with conn.cursor() as cur:
-        cur.execute(sql, params) if params else cur.execute(sql)
-        return pd.DataFrame.from_records(
-            cur.fetchall(),
-            columns=[c[0] for c in cur.description],
-        )
+-- def snowflake_run_query_df(conn, sql: str, params=None) -> pd.DataFrame:
+--     with conn.cursor() as cur:
+--         cur.execute(sql, params) if params else cur.execute(sql)
+--         return pd.DataFrame.from_records(
+--             cur.fetchall(),
+--             columns=[c[0] for c in cur.description],
+--         )
+
+
+class SnowflakeClient:
+    def __init__(
+        self,
+        warehouse: str = "COMPUTE_WH",
+        database: str = "BUDGET",
+        schema: str = "RAW",
+        role: str = "PUBLIC",
+    ):
+        self.warehouse = warehouse
+        self.database = database
+        self.schema = schema
+        self.role = role
+
+    def _connect(self):
+        """Create and return a Snowflake connection (internal use)."""
+        try:
+            return snowflake.connector.connect(
+                user=secrets_get("svc-snf-user"),
+                private_key=pem_to_snowflake_der(
+                    normalize_pem(secrets_get("svc-snf-rsa-key"))
+                ),
+                account=secrets_get("svc-snf-acc"),
+                warehouse=self.warehouse,
+                database=self.database,
+                schema=self.schema,
+                role=self.role,
+            )
+        except Exception as e:
+            st.write("Error connecting to Snowflake:")
+            st.write(e)
+            raise
+
+    def run_query(self, sql: str, params=None):
+        """Execute SQL and return raw rows."""
+        conn = self._connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, params) if params else cur.execute(sql)
+                return cur.fetchall()
+        finally:
+            conn.close()
+
+    def run_query_df(self, sql: str, params=None) -> pd.DataFrame:
+        """Execute SQL and return a pandas DataFrame."""
+        conn = self._connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, params) if params else cur.execute(sql)
+                return pd.DataFrame.from_records(
+                    cur.fetchall(),
+                    columns=[c[0] for c in cur.description],
+                )
+        finally:
+            conn.close()
 
