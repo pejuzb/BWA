@@ -35,44 +35,119 @@ load_dotenv()
 # 3. update secrets in Git Hub Actions secrets 
 # 4. restart the app service
 
-# Azure Key Vault
-client_id = os.getenv("AZURE_CLIENT_ID")
-tenant_id = os.getenv("AZURE_TENANT_ID")
-client_secret = os.getenv("AZURE_CLIENT_SECRET")
-vault_url = os.getenv("AZURE_VAULT_URL")
+# # Azure Key Vault
+# client_id = os.getenv("AZURE_CLIENT_ID")
+# tenant_id = os.getenv("AZURE_TENANT_ID")
+# client_secret = os.getenv("AZURE_CLIENT_SECRET")
+# vault_url = os.getenv("AZURE_VAULT_URL")
 
 
-def azure_authenticate():
-    try:
-        credentials = ClientSecretCredential(
-            client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
+# def azure_authenticate():
+#     try:
+#         credentials = ClientSecretCredential(
+#             client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
+#         )
+#         # st.write("Successfully authenticated with Azure Key Vault.")
+#         return credentials
+#     except ClientAuthenticationError as e:
+#         st.write("Authentication failed. Please check your Azure credentials.")
+#         st.write(e)
+#     except Exception as e:
+#         st.write("An unexpected error occurred during Azure authentication.")
+#         st.write(e)
+
+
+# # Function to get secrets from Azure Key Vault
+# def secrets_get(secret_name):
+#     try:
+#         secret_client = SecretClient(vault_url=vault_url, credential=azure_authenticate())
+#         secret = secret_client.get_secret(secret_name)
+#         # st.write(f"Successfully retrieved secret: {secret_name}")
+#         return secret.value
+#     except ClientAuthenticationError as e:
+#         st.write("Authentication failed. Please check your Azure credentials.")
+#         st.write(e)
+#     except HttpResponseError as e:
+#         st.write("Failed to retrieve secret due to HTTP error.")
+#         st.write(e)
+#     except Exception as e:
+#         st.write("An unexpected error occurred.")
+#         st.write(e)
+
+
+class AzureKeyVaultClient:
+    def __init__(
+        self,
+        vault_url: str | None = None,
+        client_id: str | None = None,
+        tenant_id: str | None = None,
+        client_secret: str | None = None,
+    ):
+        self.vault_url = vault_url or os.getenv("AZURE_VAULT_URL")
+        self.client_id = client_id or os.getenv("AZURE_CLIENT_ID")
+        self.tenant_id = tenant_id or os.getenv("AZURE_TENANT_ID")
+        self.client_secret = client_secret or os.getenv("AZURE_CLIENT_SECRET")
+
+        self._validate_env()
+
+    def _validate_env(self):
+        missing = [
+            name
+            for name, value in {
+                "AZURE_VAULT_URL": self.vault_url,
+                "AZURE_CLIENT_ID": self.client_id,
+                "AZURE_TENANT_ID": self.tenant_id,
+                "AZURE_CLIENT_SECRET": self.client_secret,
+            }.items()
+            if not value
+        ]
+
+        if missing:
+            raise EnvironmentError(
+                f"Missing Azure Key Vault environment variables: {', '.join(missing)}"
+            )
+
+    def _authenticate(self) -> ClientSecretCredential:
+        """Create Azure ClientSecretCredential."""
+        try:
+            return ClientSecretCredential(
+                client_id=self.client_id,
+                tenant_id=self.tenant_id,
+                client_secret=self.client_secret,
+            )
+        except ClientAuthenticationError as e:
+            st.write("Authentication failed. Please check your Azure credentials.")
+            st.write(e)
+            raise
+        except Exception as e:
+            st.write("Unexpected error during Azure authentication.")
+            st.write(e)
+            raise
+
+    def _secret_client(self) -> SecretClient:
+        """Create a SecretClient."""
+        return SecretClient(
+            vault_url=self.vault_url,
+            credential=self._authenticate(),
         )
-        # st.write("Successfully authenticated with Azure Key Vault.")
-        return credentials
-    except ClientAuthenticationError as e:
-        st.write("Authentication failed. Please check your Azure credentials.")
-        st.write(e)
-    except Exception as e:
-        st.write("An unexpected error occurred during Azure authentication.")
-        st.write(e)
 
-
-# Function to get secrets from Azure Key Vault
-def secrets_get(secret_name):
-    try:
-        secret_client = SecretClient(vault_url=vault_url, credential=azure_authenticate())
-        secret = secret_client.get_secret(secret_name)
-        # st.write(f"Successfully retrieved secret: {secret_name}")
-        return secret.value
-    except ClientAuthenticationError as e:
-        st.write("Authentication failed. Please check your Azure credentials.")
-        st.write(e)
-    except HttpResponseError as e:
-        st.write("Failed to retrieve secret due to HTTP error.")
-        st.write(e)
-    except Exception as e:
-        st.write("An unexpected error occurred.")
-        st.write(e)
+    def get_secret(self, secret_name: str) -> str:
+        """Retrieve a secret value from Azure Key Vault."""
+        try:
+            secret_client = self._secret_client()
+            return secret_client.get_secret(secret_name).value
+        except ClientAuthenticationError as e:
+            st.write("Authentication failed while retrieving secret.")
+            st.write(e)
+            raise
+        except HttpResponseError as e:
+            st.write(f"Failed to retrieve secret '{secret_name}'.")
+            st.write(e)
+            raise
+        except Exception as e:
+            st.write("Unexpected error while retrieving secret.")
+            st.write(e)
+            raise
 
 
 def upload_to_blob(file, filename):
@@ -130,11 +205,13 @@ def upload_to_blob(file, filename):
 class SnowflakeClient:
     def __init__(
         self,
+        kv_client: AzureKeyVaultClient,
         warehouse: str = "COMPUTE_WH",
         database: str = "BUDGET",
         schema: str = "RAW",
         role: str = "PUBLIC",
     ):
+        self.kv = kv_client
         self.warehouse = warehouse
         self.database = database
         self.schema = schema
@@ -206,11 +283,11 @@ class SnowflakeClient:
         """Create and return a Snowflake connection (internal use)."""
         try:
             return snowflake.connector.connect(
-                user=secrets_get("svc-snf-user"),
+                user=self.kv.get_secret("svc-snf-user"),
                 private_key=self.private_key_from_secret(
-                    secrets_get("svc-snf-rsa-key")
+                    self.kv.get_secret("svc-snf-rsa-key")
                 ),
-                account=secrets_get("svc-snf-acc"),
+                account=self.kv.get_secret("svc-snf-acc"),
                 warehouse=self.warehouse,
                 database=self.database,
                 schema=self.schema,

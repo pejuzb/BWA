@@ -1,7 +1,8 @@
 from admin.utils import *
 
+azk = AzureKeyVaultClient()
+snf = SnowflakeClient(kv_client=azk)
 
-snf = SnowflakeClient()
 
 # Streamlit File Uploader for multiple files
 st.title("Upload Files to Azure Blob Storage")
