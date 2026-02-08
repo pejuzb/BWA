@@ -1,6 +1,7 @@
 from admin.utils import *
 
 azk = AzureKeyVaultClient()
+abl = AzureBlobUploader(kv_client=azk)
 snf = SnowflakeClient(kv_client=azk)
 
 # Streamlit File Uploader for multiple files
@@ -21,8 +22,10 @@ if uploaded_files is not None:
 
 
         # Upload the file to Azure Blob Storage
-        result_message = upload_to_blob(uploaded_file, uploaded_file.name)
+        result_message = abl.upload_file(uploaded_file, uploaded_file.name)
         st.success(result_message)
+
+
 
 
 if st.button("Recalculate Database"):

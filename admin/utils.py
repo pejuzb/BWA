@@ -113,7 +113,7 @@ class SnowflakeClient:
     def __init__(
         self,
         kv_client: AzureKeyVaultClient,
-        warehouse: str = "COMPUTE_WH",
+        warehouse: str = "SVC_APP_WH",
         database: str = "BUDGET",
         schema: str = "RAW",
         role: str = "PUBLIC",
@@ -229,6 +229,78 @@ class SnowflakeClient:
             conn.close()
 
 
+class AzureBlobUploader:
+    def __init__(
+        self,
+        kv_client: AzureKeyVaultClient,
+        container: str = "snfdb",
+        input_folder: str = "peter/inputs/",
+        processed_folder: str = "peter/processed_files/",
+    ):
+        self.kv = kv_client
+        self.container = container
+        self.input_folder = input_folder
+        self.processed_folder = processed_folder
+
+        self.blob_service_client = BlobServiceClient(
+            account_url=self.kv.get_secret("sc-storage"),
+            credential=self.kv._authenticate(),
+        )
+        self.container_client = self.blob_service_client.get_container_client(
+            container=self.container
+        )
+
+    def upload_file(self, file, filename: str) -> str:
+        try:
+            self._archive_existing_file(filename)
+
+            full_blob_name = f"{self.input_folder}{filename}"
+            file_data = file.read()
+
+            self.container_client.upload_blob(
+                name=full_blob_name,
+                data=file_data,
+                overwrite=True,
+            )
+
+            return f"File {filename} uploaded successfully to '{self.input_folder}'!"
+
+        except Exception as e:
+            return f"Error uploading file: {e}"
+
+    def _archive_existing_file(self, filename: str) -> None:
+        file_keyword = self._extract_keyword(filename)
+        if not file_keyword:
+            return
+
+        existing_blobs = self.container_client.list_blobs(
+            name_starts_with=self.input_folder
+        )
+
+        for blob in existing_blobs:
+            if file_keyword in blob.name:
+                self._move_blob_to_processed(blob.name)
+
+    def _move_blob_to_processed(self, source_blob: str) -> None:
+        target_blob = (
+            f"{self.processed_folder}{source_blob.split('/')[-1]}"
+        )
+
+        source_client = self.container_client.get_blob_client(source_blob)
+        target_client = self.container_client.get_blob_client(target_blob)
+
+        target_client.start_copy_from_url(source_client.url)
+        self.container_client.delete_blob(source_blob)
+
+    @staticmethod
+    def _extract_keyword(filename: str) -> str | None:
+        if "pohyby" in filename:
+            return "pohyby"
+        if "account-statement" in filename:
+            return "account-statement"
+        return None
+
+
 
 def upload_to_blob(file, filename):
     try:
@@ -278,4 +350,5 @@ def upload_to_blob(file, filename):
 
     except Exception as e:
         return f"Error uploading file: {e}"
+
 
