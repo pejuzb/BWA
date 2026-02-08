@@ -228,6 +228,36 @@ class SnowflakeClient:
         finally:
             conn.close()
 
+    def write_pandas(self, df: pd.DataFrame, table_name: str, schema: str ='CORE') -> bool:
+        """Write a pandas DataFrame to Snowflake using write_pandas."""
+        conn = self._connect()
+        try:
+            success, _, _ = write_pandas(
+                conn=conn,
+                df=df,
+                table_name=table_name,
+                database=self.database,
+                schema=schema,
+            )
+            return success
+        except Exception as e:
+            st.write("Error writing DataFrame to Snowflake:")
+            st.write(e)
+            return False
+        finally:
+            conn.close()
+
+# # Function to insert DataFrame back into Snowflake
+# def insert_data(df):
+#     #conn.cursor().execute("USE SCHEMA CORE")
+#     success, nchunks, nrows, _ = write_pandas(snf._connect, df, table_name= "HIERARCHY", schema="CORE")
+#     if success:
+#         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
+#         st.cache_data.clear()
+#     else:
+#         st.error("Failed to insert data.")
+
+
 
 class AzureBlobUploader:
     def __init__(
@@ -292,6 +322,48 @@ class AzureBlobUploader:
         target_client.start_copy_from_url(source_client.url)
         self.container_client.delete_blob(source_blob)
 
+    def export_hierarchy_csv(
+        self,
+        df_update: pd.DataFrame,
+        blob_path: str = "peter/inputs/input_hierarchy_peter.csv",
+        delimiter: str = ";",
+    ) -> bool:
+        """
+        Download existing hierarchy CSV from Azure Blob,
+        append new rows, and upload it back.
+
+        Returns True if export was performed, False otherwise.
+        """
+
+        if df_update.empty:
+            return False
+
+        blob_client = self.container_client.get_blob_client(blob_path)
+
+        # Download existing CSV
+        blob_data = blob_client.download_blob().content_as_text()
+        df_existing = pd.read_csv(StringIO(blob_data), delimiter=delimiter)
+
+        # Normalize columns
+        df_existing.columns = df_existing.columns.str.upper()
+
+        df_update = df_update[
+            ["PROD_HIERARCHY_ID", "L1", "L2", "L3", "LOAD_DATETIME"]
+        ].rename(columns={"LOAD_DATETIME": "AZURE_INSERT_DATETIME"})
+
+        df_update.columns = df_existing.columns
+
+        # Combine
+        df_combined = pd.concat([df_existing, df_update], ignore_index=True)
+
+        # Upload back to Azure
+        csv_buffer = StringIO()
+        df_combined.to_csv(csv_buffer, index=False, sep=delimiter)
+
+        blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+
+        return True
+    
     @staticmethod
     def _extract_keyword(filename: str) -> str | None:
         if "pohyby" in filename:
@@ -299,56 +371,3 @@ class AzureBlobUploader:
         if "account-statement" in filename:
             return "account-statement"
         return None
-
-
-
-def upload_to_blob(file, filename):
-    try:
-        # Create a blob service client using the connection string
-        blob_service_client = BlobServiceClient(
-            account_url=secrets_get("sc-storage"), credential=azure_authenticate()
-        )
-
-        # Get a container client
-        blob_client = blob_service_client.get_container_client(container="snfdb")
-
-        # Define the folder path within the container
-        folder_path = "peter/inputs/"
-
-        # Check if the filename contains 'pohyby' or 'account-statement'
-        if "pohyby" in filename or "account-statement" in filename:
-            # Determine the string to look for in existing blobs based on the filename
-            file_keyword = "pohyby" if "pohyby" in filename else "account-statement"
-
-            # Check for existing files containing the specific keyword in 'peter/inputs'
-            existing_blobs = blob_client.list_blobs(name_starts_with=folder_path)
-            for existing_blob in existing_blobs:
-                if file_keyword in existing_blob.name:
-                    # Move the existing file to the 'peter/processed_files' folder
-                    source_blob = existing_blob.name
-                    target_blob = (
-                        f"peter/processed_files/{existing_blob.name.split('/')[-1]}"
-                    )
-
-                    # Copy the existing blob to the new location
-                    blob_client.get_blob_client(target_blob).start_copy_from_url(
-                        blob_client.get_blob_client(source_blob).url
-                    )
-
-                    # Delete the original blob
-                    blob_client.delete_blob(source_blob)
-
-        # Define the full path for the new file within the container
-        full_filename = f"{folder_path}{filename}"
-
-        # Read the file content
-        file_data = file.read()
-
-        # Upload the file content to the blob within 'peter/inputs' folder
-        blob_client.upload_blob(data=file_data, name=full_filename, overwrite=True)
-        return f"File {filename} uploaded successfully to 'peter/inputs'!"
-
-    except Exception as e:
-        return f"Error uploading file: {e}"
-
-

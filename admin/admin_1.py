@@ -20,40 +20,27 @@ if uploaded_files is not None:
             "filesize": uploaded_file.size,
         }
 
-
         # Upload the file to Azure Blob Storage
         result_message = abl.upload_file(uploaded_file, uploaded_file.name)
         st.success(result_message)
 
 
-
-
 if st.button("Recalculate Database"):
     try:
-        snf.run_query("CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();")
-        st.write("Raw schema truncated!")
+        procedures = {
+            "Truncate RAW schema": "CALL BUDGET.RAW.TRUNCATE_RAW_TABLES();",
+            "RAW procedure [REVOLUT]": "CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();",
+            "RAW procedure [CSOB]": "CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();",
+            "RAW procedure [HIERARCHY]": "CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();",
+            "CORE procedure [REVOLUT]": "CALL BUDGET.CORE.RAW2CORE_REV();",
+            "CORE procedure [CSOB]": "CALL BUDGET.CORE.RAW2CORE_CSOB();",
+            "CORE procedure [HIERARCHY]": "CALL BUDGET.CORE.RAW2CORE_HIERARCHY();",
+            "CORE procedure [C2C MANUAL ADJUSTMENTS]": "CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();",
+        }
 
-        snf.run_query("CALL BUDGET.RAW.COPY_FILES_TO_RAW_REVOLUT();")
-        st.write("Raw procedure [REVOLUT] executed successfully!")
-
-        snf.run_query("CALL BUDGET.RAW.COPY_FILES_TO_RAW_CSOB();")
-        st.write("Raw procedure [CSOB] executed successfully!")
-
-        snf.run_query("CALL BUDGET.RAW.COPY_FILES_TO_HIERARCHY();")
-        st.write("Raw procedure [HIERARCHY] executed successfully!")
-
-        snf.run_query("CALL BUDGET.CORE.RAW2CORE_REV();")
-        st.write("Core procedure [REVOLUT] executed successfully!")
-
-        snf.run_query("CALL BUDGET.CORE.RAW2CORE_CSOB();")
-        st.write("Core procedure [CSOB] executed successfully!")
-
-        snf.run_query("CALL BUDGET.CORE.RAW2CORE_HIERARCHY();")
-        st.write("Core procedure [HIERARCHY] executed successfully!")
-
-        snf.run_query("CALL BUDGET.CORE.CORE2CORE_MANUAL_ADJ();")
-        st.write("Core procedure [C2C MANUAL ADJUSTMENTS] executed successfully!")
-
+        for label, sql in procedures.items():
+            snf.run_query(sql)
+            st.write(f"{label} executed successfully!")
     except Exception as e:
         st.write(f"Error: {e}")  # Display error message if any
 
@@ -63,7 +50,6 @@ query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'"
 
 # Load data into Pandas DataFrame
 df = snf.run_query_df(query)
-
 
 # Display the DataFrame using Streamlit
 st.title("Snowflake Data Viewer")
@@ -85,48 +71,48 @@ st.write("Transaction data with missing hierarchy:")
 st.dataframe(df_mh)
 
 
-def export_csv(df_update):
-    # Initialize BlobServiceClient
-    blob_service_client = BlobServiceClient(
-        account_url=azk.get_secret("sc-storage"), credential=azk._authenticate()
-    )
+# def export_csv(df_update):
+#     # Initialize BlobServiceClient
+#     blob_service_client = BlobServiceClient(
+#         account_url=azk.get_secret("sc-storage"), credential=azk._authenticate()
+#     )
 
-    # Get the container client
-    container_client = blob_service_client.get_container_client(container="snfdb")
+#     # Get the container client
+#     container_client = blob_service_client.get_container_client(container="snfdb")
 
-    # Create a blob client for the specific blob
-    blob_client = container_client.get_blob_client(
-        blob="peter/inputs/input_hierarchy_peter.csv"
-    )
+#     # Create a blob client for the specific blob
+#     blob_client = container_client.get_blob_client(
+#         blob="peter/inputs/input_hierarchy_peter.csv"
+#     )
 
-    # Download the blob's content as text
-    blob_data = blob_client.download_blob().content_as_text()
+#     # Download the blob's content as text
+#     blob_data = blob_client.download_blob().content_as_text()
 
-    # Convert the text data to a DataFrame
-    df = pd.read_csv(StringIO(blob_data), delimiter=";")
+#     # Convert the text data to a DataFrame
+#     df = pd.read_csv(StringIO(blob_data), delimiter=";")
 
-    df.columns = df.columns.str.upper()
+#     df.columns = df.columns.str.upper()
 
-    if df_update.empty:
-        return
+#     if df_update.empty:
+#         return
 
-    df_update = df_update[["PROD_HIERARCHY_ID", "L1", "L2", "L3", "LOAD_DATETIME"]]
-    df_update = df_update.rename(columns={"LOAD_DATETIME": "AZURE_INSERT_DATETIME"})
+#     df_update = df_update[["PROD_HIERARCHY_ID", "L1", "L2", "L3", "LOAD_DATETIME"]]
+#     df_update = df_update.rename(columns={"LOAD_DATETIME": "AZURE_INSERT_DATETIME"})
 
-    df_update.columns = df.columns
+#     df_update.columns = df.columns
 
-    df_combined = pd.concat([df, df_update], ignore_index=True)
-    # Convert DataFrame to CSV in memory
-    csv_buffer = StringIO()
-    df_combined.to_csv(csv_buffer, index=False, sep=";")
+#     df_combined = pd.concat([df, df_update], ignore_index=True)
+#     # Convert DataFrame to CSV in memory
+#     csv_buffer = StringIO()
+#     df_combined.to_csv(csv_buffer, index=False, sep=";")
 
-    # Upload the CSV to Azure Blob Storage
-    blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+#     # Upload the CSV to Azure Blob Storage
+#     blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
 
-    # st.write("CSV exported successfully!")
+#     # st.write("CSV exported successfully!")
 
-    # Display the DataFrame
-    return True
+#     # Display the DataFrame
+#     return True
 
 
 # Function to query data from Snowflake
@@ -157,14 +143,14 @@ def load_data():
 
 
 # Function to insert DataFrame back into Snowflake
-def insert_data(df):
-    #conn.cursor().execute("USE SCHEMA CORE")
-    success, nchunks, nrows, _ = write_pandas(snf._connect, df, table_name= "HIERARCHY", schema="CORE")
-    if success:
-        st.success(f"Successfully inserted {nrows} rows into Snowflake!")
-        st.cache_data.clear()
-    else:
-        st.error("Failed to insert data.")
+# def insert_data(df):
+#     #conn.cursor().execute("USE SCHEMA CORE")
+#     success, nchunks, nrows, _ = write_pandas(snf._connect, df, table_name= "HIERARCHY", schema="CORE")
+#     if success:
+#         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
+#         st.cache_data.clear()
+#     else:
+#         st.error("Failed to insert data.")
 
 
 # Load data from Snowflake
@@ -180,8 +166,8 @@ if st.button("Insert Data into Snowflake"):
         "%Y-%m-%d %H:%M:%S"
     )
     edited_df = edited_df[edited_df["L1"].notnull()]
-    insert_data(edited_df)
-    export_csv(edited_df)
+    snf.write_pandas(edited_df, table_name='HIERARCHY') #insert_data(edited_df)
+    abl.export_hierarchy_csv(edited_df) #export_csv(edited_df)
 
 # Add a "Refresh Cache" button
 if st.button("Refresh Cache"):
