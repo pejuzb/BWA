@@ -3,7 +3,6 @@ from admin.utils import *
 azk = AzureKeyVaultClient()
 snf = SnowflakeClient(kv_client=azk)
 
-
 # Streamlit File Uploader for multiple files
 st.title("Upload Files to Azure Blob Storage")
 
@@ -86,7 +85,7 @@ st.dataframe(df_mh)
 def export_csv(df_update):
     # Initialize BlobServiceClient
     blob_service_client = BlobServiceClient(
-        account_url=secrets_get("sc-storage"), credential=azure_authenticate()
+        account_url=azk.get_secret("sc-storage"), credential=azk._authenticate()
     )
 
     # Get the container client

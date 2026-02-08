@@ -28,52 +28,11 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 # Load env variables
 load_dotenv()
 
-
 # What to do after secret expiration
 # 1. generate new client secret in Azure portal (App registrations -> your app -> Certificates & secrets)
 # 2. update AZURE CLIENT_SECRET in App Services -> Settings -> Environment variables
 # 3. update secrets in Git Hub Actions secrets 
 # 4. restart the app service
-
-# # Azure Key Vault
-# client_id = os.getenv("AZURE_CLIENT_ID")
-# tenant_id = os.getenv("AZURE_TENANT_ID")
-# client_secret = os.getenv("AZURE_CLIENT_SECRET")
-# vault_url = os.getenv("AZURE_VAULT_URL")
-
-
-# def azure_authenticate():
-#     try:
-#         credentials = ClientSecretCredential(
-#             client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
-#         )
-#         # st.write("Successfully authenticated with Azure Key Vault.")
-#         return credentials
-#     except ClientAuthenticationError as e:
-#         st.write("Authentication failed. Please check your Azure credentials.")
-#         st.write(e)
-#     except Exception as e:
-#         st.write("An unexpected error occurred during Azure authentication.")
-#         st.write(e)
-
-
-# # Function to get secrets from Azure Key Vault
-# def secrets_get(secret_name):
-#     try:
-#         secret_client = SecretClient(vault_url=vault_url, credential=azure_authenticate())
-#         secret = secret_client.get_secret(secret_name)
-#         # st.write(f"Successfully retrieved secret: {secret_name}")
-#         return secret.value
-#     except ClientAuthenticationError as e:
-#         st.write("Authentication failed. Please check your Azure credentials.")
-#         st.write(e)
-#     except HttpResponseError as e:
-#         st.write("Failed to retrieve secret due to HTTP error.")
-#         st.write(e)
-#     except Exception as e:
-#         st.write("An unexpected error occurred.")
-#         st.write(e)
-
 
 class AzureKeyVaultClient:
     def __init__(
@@ -148,58 +107,6 @@ class AzureKeyVaultClient:
             st.write("Unexpected error while retrieving secret.")
             st.write(e)
             raise
-
-
-def upload_to_blob(file, filename):
-    try:
-        # Create a blob service client using the connection string
-        blob_service_client = BlobServiceClient(
-            account_url=secrets_get("sc-storage"), credential=azure_authenticate()
-        )
-
-        # Get a container client
-        blob_client = blob_service_client.get_container_client(container="snfdb")
-
-        # Define the folder path within the container
-        folder_path = "peter/inputs/"
-
-        # Check if the filename contains 'pohyby' or 'account-statement'
-        if "pohyby" in filename or "account-statement" in filename:
-            # Determine the string to look for in existing blobs based on the filename
-            file_keyword = "pohyby" if "pohyby" in filename else "account-statement"
-
-            # Check for existing files containing the specific keyword in 'peter/inputs'
-            existing_blobs = blob_client.list_blobs(name_starts_with=folder_path)
-            for existing_blob in existing_blobs:
-                if file_keyword in existing_blob.name:
-                    # Move the existing file to the 'peter/processed_files' folder
-                    source_blob = existing_blob.name
-                    target_blob = (
-                        f"peter/processed_files/{existing_blob.name.split('/')[-1]}"
-                    )
-
-                    # Copy the existing blob to the new location
-                    blob_client.get_blob_client(target_blob).start_copy_from_url(
-                        blob_client.get_blob_client(source_blob).url
-                    )
-
-                    # Delete the original blob
-                    blob_client.delete_blob(source_blob)
-
-        # Define the full path for the new file within the container
-        full_filename = f"{folder_path}{filename}"
-
-        # Read the file content
-        file_data = file.read()
-
-        # Upload the file content to the blob within 'peter/inputs' folder
-        blob_client.upload_blob(data=file_data, name=full_filename, overwrite=True)
-        return f"File {filename} uploaded successfully to 'peter/inputs'!"
-
-    except Exception as e:
-        return f"Error uploading file: {e}"
-
-
 
 
 class SnowflakeClient:
@@ -320,3 +227,55 @@ class SnowflakeClient:
                 )
         finally:
             conn.close()
+
+
+
+def upload_to_blob(file, filename):
+    try:
+        # Create a blob service client using the connection string
+        blob_service_client = BlobServiceClient(
+            account_url=secrets_get("sc-storage"), credential=azure_authenticate()
+        )
+
+        # Get a container client
+        blob_client = blob_service_client.get_container_client(container="snfdb")
+
+        # Define the folder path within the container
+        folder_path = "peter/inputs/"
+
+        # Check if the filename contains 'pohyby' or 'account-statement'
+        if "pohyby" in filename or "account-statement" in filename:
+            # Determine the string to look for in existing blobs based on the filename
+            file_keyword = "pohyby" if "pohyby" in filename else "account-statement"
+
+            # Check for existing files containing the specific keyword in 'peter/inputs'
+            existing_blobs = blob_client.list_blobs(name_starts_with=folder_path)
+            for existing_blob in existing_blobs:
+                if file_keyword in existing_blob.name:
+                    # Move the existing file to the 'peter/processed_files' folder
+                    source_blob = existing_blob.name
+                    target_blob = (
+                        f"peter/processed_files/{existing_blob.name.split('/')[-1]}"
+                    )
+
+                    # Copy the existing blob to the new location
+                    blob_client.get_blob_client(target_blob).start_copy_from_url(
+                        blob_client.get_blob_client(source_blob).url
+                    )
+
+                    # Delete the original blob
+                    blob_client.delete_blob(source_blob)
+
+        # Define the full path for the new file within the container
+        full_filename = f"{folder_path}{filename}"
+
+        # Read the file content
+        file_data = file.read()
+
+        # Upload the file content to the blob within 'peter/inputs' folder
+        blob_client.upload_blob(data=file_data, name=full_filename, overwrite=True)
+        return f"File {filename} uploaded successfully to 'peter/inputs'!"
+
+    except Exception as e:
+        return f"Error uploading file: {e}"
+
