@@ -94,7 +94,7 @@ def load_data(refresh_token: int) -> pd.DataFrame:
     WITH tx AS (
         SELECT DISTINCT prod_hierarchy, source_system
         FROM BUDGET.CORE.TRANSACTION
-        WHERE owner = '{OWNER}'
+        WHERE owner = 'Peter'
           AND prod_hierarchy IS NOT NULL
     )
     SELECT
