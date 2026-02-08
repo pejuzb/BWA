@@ -228,22 +228,22 @@ class SnowflakeClient:
         finally:
             conn.close()
 
-    def write_pandas(self, df: pd.DataFrame, table_name: str, schema: str ='CORE') -> bool:
-        """Write a pandas DataFrame to Snowflake using write_pandas."""
+    def sf_write_pandas(self, df: pd.DataFrame, table_name: str, schema: str = "CORE") -> tuple[bool, int, int]:
         conn = self._connect()
         try:
-            success, _, _ = write_pandas(
+            # Common return: (success, nchunks, nrows, output)
+            success, nchunks, nrows, *_ = write_pandas(
                 conn=conn,
                 df=df,
                 table_name=table_name,
                 database=self.database,
                 schema=schema,
             )
-            return success
+            return bool(success), int(nchunks), int(nrows)
         except Exception as e:
             st.write("Error writing DataFrame to Snowflake:")
             st.write(e)
-            return False
+            return False, 0, 0
         finally:
             conn.close()
 

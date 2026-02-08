@@ -115,6 +115,9 @@ st.dataframe(df_mh)
 #     return True
 
 
+
+
+
 # Function to query data from Snowflake
 @st.cache_data  # Caches the data to avoid querying every time
 def load_data():
@@ -166,7 +169,7 @@ if st.button("Insert Data into Snowflake"):
         "%Y-%m-%d %H:%M:%S"
     )
     edited_df = edited_df[edited_df["L1"].notnull()]
-    snf.write_pandas(edited_df, table_name='HIERARCHY') #insert_data(edited_df)
+    snf.sf_write_pandas(edited_df, table_name='HIERARCHY') #insert_data(edited_df)
     abl.export_hierarchy_csv(edited_df) #export_csv(edited_df)
 
 # Add a "Refresh Cache" button
