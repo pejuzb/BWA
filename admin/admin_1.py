@@ -71,108 +71,138 @@ st.write("Transaction data with missing hierarchy:")
 st.dataframe(df_mh)
 
 
-# def export_csv(df_update):
-#     # Initialize BlobServiceClient
-#     blob_service_client = BlobServiceClient(
-#         account_url=azk.get_secret("sc-storage"), credential=azk._authenticate()
-#     )
 
-#     # Get the container client
-#     container_client = blob_service_client.get_container_client(container="snfdb")
+# Editable Dataframe with caching and refresh mechanism
 
-#     # Create a blob client for the specific blob
-#     blob_client = container_client.get_blob_client(
-#         blob="peter/inputs/input_hierarchy_peter.csv"
-#     )
+TZ = pytz.timezone("Europe/Prague")
 
-#     # Download the blob's content as text
-#     blob_data = blob_client.download_blob().content_as_text()
+# --- session state init ---
+if "refresh_token" not in st.session_state:
+    st.session_state.refresh_token = 0
 
-#     # Convert the text data to a DataFrame
-#     df = pd.read_csv(StringIO(blob_data), delimiter=";")
-
-#     df.columns = df.columns.str.upper()
-
-#     if df_update.empty:
-#         return
-
-#     df_update = df_update[["PROD_HIERARCHY_ID", "L1", "L2", "L3", "LOAD_DATETIME"]]
-#     df_update = df_update.rename(columns={"LOAD_DATETIME": "AZURE_INSERT_DATETIME"})
-
-#     df_update.columns = df.columns
-
-#     df_combined = pd.concat([df, df_update], ignore_index=True)
-#     # Convert DataFrame to CSV in memory
-#     csv_buffer = StringIO()
-#     df_combined.to_csv(csv_buffer, index=False, sep=";")
-
-#     # Upload the CSV to Azure Blob Storage
-#     blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
-
-#     # st.write("CSV exported successfully!")
-
-#     # Display the DataFrame
-#     return True
+def bump_refresh():
+    """Forces load_data() cache miss + triggers rerun."""
+    st.session_state.refresh_token += 1
+    st.cache_data.clear()
+    st.rerun()
 
 
-
-
-
-# Function to query data from Snowflake
-@st.cache_data  # Caches the data to avoid querying every time
-def load_data():
-    query = """with test as (
-        Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
-        where a.owner = 'Peter'
-        )
-
-        Select
-        --a.source_system,
-        MD5(a.prod_hierarchy) as HIERARCHY_HK,
-        a.prod_hierarchy as PROD_HIERARCHY_ID,
-        b.L1,
-        b.L2,
-        b.L3,
-        'Peter' as OWNER
-
-        from test as a
-        left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter') as b
-        on a.prod_hierarchy = b.prod_hierarchy_id
-        where HIERARCHY_HK is null
-        order by 1,2"""
-
-    df = snf.run_query_df(query)
-    return df
-
-
-# Function to insert DataFrame back into Snowflake
-# def insert_data(df):
-#     #conn.cursor().execute("USE SCHEMA CORE")
-#     success, nchunks, nrows, _ = write_pandas(snf._connect, df, table_name= "HIERARCHY", schema="CORE")
-#     if success:
-#         st.success(f"Successfully inserted {nrows} rows into Snowflake!")
-#         st.cache_data.clear()
-#     else:
-#         st.error("Failed to insert data.")
-
-
-# Load data from Snowflake
-df = load_data()
-
-# Display editable DataFrame
-st.write("### Editable Table")
-edited_df = st.data_editor(df, num_rows="dynamic")
-
-# Button to insert updated data
-if st.button("Insert Data into Snowflake"):
-    edited_df["LOAD_DATETIME"] = datetime.now(pytz.timezone("Europe/Prague")).strftime(
-        "%Y-%m-%d %H:%M:%S"
+@st.cache_data(show_spinner="Loading missing hierarchies...")
+def load_data(refresh_token: int) -> pd.DataFrame:
+    # refresh_token is unused in logic, but forces cache key changes
+    query = f"""
+    WITH tx AS (
+        SELECT DISTINCT prod_hierarchy, source_system
+        FROM BUDGET.CORE.TRANSACTION
+        WHERE owner = '{OWNER}'
+          AND prod_hierarchy IS NOT NULL
     )
-    edited_df = edited_df[edited_df["L1"].notnull()]
-    snf.sf_write_pandas(edited_df, table_name='HIERARCHY') #insert_data(edited_df)
-    abl.export_hierarchy_csv(edited_df) #export_csv(edited_df)
+    SELECT
+        MD5(tx.prod_hierarchy) AS HIERARCHY_HK,
+        tx.prod_hierarchy      AS PROD_HIERARCHY_ID,
+        h.L1,
+        h.L2,
+        h.L3,
+        'Peter'              AS OWNER
+    FROM tx
+    LEFT JOIN BUDGET.CORE.HIERARCHY h
+      ON tx.prod_hierarchy = h.prod_hierarchy_id
+     AND h.owner = 'Peter'
+    WHERE h.prod_hierarchy_id IS NULL
+    ORDER BY 1, 2
+    """
+    return snf.run_query_df(query)
 
-# Add a "Refresh Cache" button
-if st.button("Refresh Cache"):
-    st.cache_data.clear()  # Clear the cache
-    st.success("Cache cleared!")
+
+st.write("### Editable Table (missing in HIERARCHY)")
+
+df = load_data(st.session_state.refresh_token)
+
+with st.form("hierarchy_form", clear_on_submit=False):
+    edited_df = st.data_editor(
+        df,
+        num_rows="dynamic",
+        use_container_width=True,
+        key="hierarchy_editor",
+    )
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        submit = st.form_submit_button("Insert Data into Snowflake")
+    with col2:
+        refresh = st.form_submit_button("Reload from Snowflake")
+
+if refresh:
+    bump_refresh()
+
+if submit:
+    # Keep only rows the user actually filled
+    to_insert = edited_df.copy()
+    to_insert = to_insert[to_insert["L1"].notna()].copy()
+
+    if to_insert.empty:
+        st.warning("Nothing to insert (fill at least L1).")
+    else:
+        # Add timestamp as proper datetime (prefer datetime over string)
+        to_insert["LOAD_DATETIME"] = datetime.now(TZ)
+
+        try:
+            # Write to Snowflake
+            snf.sf_write_pandas(to_insert, table_name="HIERARCHY")
+
+            # Export to Azure (your method expects LOAD_DATETIME column)
+            abl.export_hierarchy_csv(to_insert)
+
+            st.success(f"Inserted {len(to_insert)} rows and updated Azure CSV.")
+
+            # Force reload so table reflects what's now in Snowflake
+            bump_refresh()
+
+        except Exception as e:
+            st.error(f"Insert/export failed: {e}")
+
+
+
+# # Function to query data from Snowflake
+# @st.cache_data  # Caches the data to avoid querying every time
+# def load_data():
+#     query = """with test as (
+#         Select distinct prod_hierarchy,source_system from BUDGET.CORE.TRANSACTION as a
+#         where a.owner = 'Peter'
+#         )
+
+#         Select
+#         --a.source_system,
+#         MD5(a.prod_hierarchy) as HIERARCHY_HK,
+#         a.prod_hierarchy as PROD_HIERARCHY_ID,
+#         b.L1,
+#         b.L2,
+#         b.L3,
+#         'Peter' as OWNER
+
+#         from test as a
+#         left join (Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter') as b
+#         on a.prod_hierarchy = b.prod_hierarchy_id
+#         where HIERARCHY_HK is null
+#         order by 1,2"""
+
+#     df = snf.run_query_df(query)
+#     return df
+
+# # Display editable DataFrame
+# st.write("### Editable Table")
+# edited_df = st.data_editor(load_data(), num_rows="dynamic")
+
+# # Button to insert updated data
+# if st.button("Insert Data into Snowflake"):
+#     edited_df["LOAD_DATETIME"] = datetime.now(pytz.timezone("Europe/Prague")).strftime(
+#         "%Y-%m-%d %H:%M:%S"
+#     )
+#     edited_df = edited_df[edited_df["L1"].notnull()]
+#     snf.sf_write_pandas(edited_df, table_name='HIERARCHY') #insert_data(edited_df)
+#     abl.export_hierarchy_csv(edited_df) #export_csv(edited_df)
+
+# # Add a "Refresh Cache" button
+# if st.button("Refresh Cache"):
+#     st.cache_data.clear()  # Clear the cache
+#     st.success("Cache cleared!")
