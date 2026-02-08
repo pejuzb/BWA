@@ -126,37 +126,6 @@ def upload_to_blob(file, filename):
 
 
 
-def pem_to_snowflake_der(pem_bytes: bytes) -> bytes:
-    p_key = serialization.load_pem_private_key(
-        pem_bytes,
-        password=None,                 # <-- important (unencrypted key)
-        backend=default_backend(),
-    )
-    return p_key.private_bytes(
-        encoding=serialization.Encoding.DER,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption(),
-    )
-
-def normalize_pem(pem_text: str) -> bytes:
-    pem_text = pem_text.strip()
-
-    # If it contains literal "\n", convert to real newlines
-    pem_text = pem_text.replace("\\n", "\n")
-
-    # If it's still basically one line, rebuild PEM formatting
-    if "\n" not in pem_text:
-        pem_text = pem_text.replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n")
-        pem_text = pem_text.replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----")
-        # Remove spaces/newlines inside, then re-wrap base64
-        m = re.search(r"-----BEGIN PRIVATE KEY-----\s*(.*?)\s*-----END PRIVATE KEY-----", pem_text, re.S)
-        if not m:
-            raise ValueError("Could not find PEM header/footer in secret value.")
-        b64 = re.sub(r"\s+", "", m.group(1))
-        pem_text = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(wrap(b64, 64)) + "\n-----END PRIVATE KEY-----\n"
-
-    return pem_text.encode("utf-8")
-
 
 class SnowflakeClient:
     def __init__(
@@ -171,13 +140,75 @@ class SnowflakeClient:
         self.schema = schema
         self.role = role
 
+    # -------------------------
+    # Key handling (standalone)
+    # -------------------------
+    @staticmethod
+    def normalize_pem(pem_text: str) -> bytes:
+        pem_text = pem_text.strip()
+
+        # If it contains literal "\n", convert to real newlines
+        pem_text = pem_text.replace("\\n", "\n")
+
+        # If it's still basically one line, rebuild PEM formatting
+        if "\n" not in pem_text:
+            pem_text = pem_text.replace(
+                "-----BEGIN PRIVATE KEY-----",
+                "-----BEGIN PRIVATE KEY-----\n",
+            )
+            pem_text = pem_text.replace(
+                "-----END PRIVATE KEY-----",
+                "\n-----END PRIVATE KEY-----",
+            )
+
+            # Remove spaces/newlines inside, then re-wrap base64
+            m = re.search(
+                r"-----BEGIN PRIVATE KEY-----\s*(.*?)\s*-----END PRIVATE KEY-----",
+                pem_text,
+                re.S,
+            )
+            if not m:
+                raise ValueError("Could not find PEM header/footer in secret value.")
+
+            b64 = re.sub(r"\s+", "", m.group(1))
+            pem_text = (
+                "-----BEGIN PRIVATE KEY-----\n"
+                + "\n".join(wrap(b64, 64))
+                + "\n-----END PRIVATE KEY-----\n"
+            )
+
+        return pem_text.encode("utf-8")
+
+    @staticmethod
+    def pem_to_snowflake_der(pem_bytes: bytes) -> bytes:
+        p_key = serialization.load_pem_private_key(
+            pem_bytes,
+            password=None,  # important (unencrypted key)
+            backend=default_backend(),
+        )
+        return p_key.private_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+
+    @classmethod
+    def private_key_from_secret(cls, pem_text: str) -> bytes:
+        """
+        Convenience: secret text -> normalized PEM -> Snowflake DER bytes
+        """
+        return cls.pem_to_snowflake_der(cls.normalize_pem(pem_text))
+
+    # -------------------------
+    # Connection + queries
+    # -------------------------
     def _connect(self):
         """Create and return a Snowflake connection (internal use)."""
         try:
             return snowflake.connector.connect(
                 user=secrets_get("svc-snf-user"),
-                private_key=pem_to_snowflake_der(
-                    normalize_pem(secrets_get("svc-snf-rsa-key"))
+                private_key=self.private_key_from_secret(
+                    secrets_get("svc-snf-rsa-key")
                 ),
                 account=secrets_get("svc-snf-acc"),
                 warehouse=self.warehouse,
@@ -212,4 +243,3 @@ class SnowflakeClient:
                 )
         finally:
             conn.close()
-
