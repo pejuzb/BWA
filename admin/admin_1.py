@@ -58,6 +58,18 @@ st.dataframe(df)
 
 
 # Query to fetch data from Snowflake
+query_rules = "Select * from BUDGET.CORE.RULES_TABLE where owner = 'Peter'" 
+
+# Load data into Pandas DataFrame
+df_rules = snf.run_query_df(query_rules)
+
+# Display the DataFrame using Streamlit
+st.title("Rules Table Viewer")
+st.write("Defined rules for hierarchy mapping:")
+st.dataframe(df_rules)
+
+
+# Query to fetch data from Snowflake
 query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Peter' and L1 is null
 order by transaction_date desc;"""
 
