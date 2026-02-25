@@ -58,7 +58,7 @@ st.dataframe(df)
 
 
 # Query to fetch data from Snowflake
-query_rules = "Select * from BUDGET.CORE.RULES_TABLE where owner = 'Peter'" 
+query_rules = "Select * from BUDGET.CORE.RULES_TABLE" 
 
 # Load data into Pandas DataFrame
 df_rules = snf.run_query_df(query_rules)
