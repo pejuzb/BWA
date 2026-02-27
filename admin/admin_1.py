@@ -66,7 +66,34 @@ df_rules = snf.run_query_df(query_rules)
 # Display the DataFrame using Streamlit
 st.title("Rules Table Viewer")
 st.write("Defined rules for hierarchy mapping:")
-st.dataframe(df_rules)
+
+with st.form("rules_form", clear_on_submit=False):
+    edited_df_rules = st.data_editor(
+        df_rules,
+        num_rows="dynamic",
+        use_container_width=True,
+        key="rules_editor",
+    )
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        submit_rules = st.form_submit_button("Update Rules in Snowflake")
+    with col2:
+        refresh_rules = st.form_submit_button("Reload Rules from Snowflake")
+
+if refresh_rules:
+    st.rerun()
+
+if submit_rules:
+    to_update = edited_df_rules.copy()
+    to_update["LOAD_DATETIME"] = datetime.now(TZ)
+
+    try:
+        snf.sf_write_pandas(to_update, table_name="RULES_TABLE", if_exists="replace")
+        st.success(f"Updated {len(to_update)} rule(s) in Snowflake.")
+        st.rerun()
+    except Exception as e:
+        st.error(f"Update failed: {e}")
 
 
 # Query to fetch data from Snowflake
