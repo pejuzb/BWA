@@ -86,7 +86,6 @@ if refresh_rules:
 
 if submit_rules:
     to_update = edited_df_rules.copy()
-    to_update["LOAD_DATETIME"] = datetime.now(TZ)
 
     try:
         snf.sf_write_pandas(to_update, table_name="RULES_TABLE", if_exists="replace")
