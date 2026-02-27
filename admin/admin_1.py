@@ -1,4 +1,5 @@
 from admin.utils import *
+TZ = pytz.timezone("Europe/Prague")
 
 azk = AzureKeyVaultClient()
 abl = AzureBlobUploader(kv_client=azk)
@@ -58,7 +59,17 @@ st.dataframe(df)
 
 
 # Query to fetch data from Snowflake
-query_rules = "Select * from BUDGET.CORE.RULES_TABLE" 
+query_rules = """
+SELECT 
+    RULE_ID,
+    MATCH_TYPE,
+    PATTERN,
+    L1,
+    L2,
+    L3,
+    PRIORITY
+FROM CORE.RULES_TABLE
+"""
 
 # Load data into Pandas DataFrame
 df_rules = snf.run_query_df(query_rules)
@@ -86,9 +97,11 @@ if refresh_rules:
 
 if submit_rules:
     to_update = edited_df_rules.copy()
+    to_update["LOAD_DATETIME"] = datetime.now(TZ)  # Add timestamp for SCD2
 
     try:
-        snf.sf_write_pandas(to_update, table_name="RULES_TABLE", if_exists="replace")
+        snf.sf_write_pandas(to_update, table_name="RULES_TABLE", schema="RAW")
+        snf.run_query("CALL CORE.SP_LOAD_RULES_SCD2();")
         st.success(f"Updated {len(to_update)} rule(s) in Snowflake.")
         st.rerun()
     except Exception as e:
@@ -108,11 +121,6 @@ st.title("Record with Missing Hierarchy")
 st.write("Transaction data with missing hierarchy:")
 st.dataframe(df_mh)
 
-
-
-# Editable Dataframe with caching and refresh mechanism
-
-TZ = pytz.timezone("Europe/Prague")
 
 # --- session state init ---
 if "refresh_token" not in st.session_state:
