@@ -68,7 +68,7 @@ SELECT
     L2,
     L3,
     PRIORITY
-FROM CORE.RULES_TABLE
+FROM CORE.RULES_TABLE ORDER BY 1
 """
 
 # Load data into Pandas DataFrame
@@ -86,14 +86,7 @@ with st.form("rules_form", clear_on_submit=False):
         key="rules_editor",
     )
 
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        submit_rules = st.form_submit_button("Update Rules in Snowflake")
-    with col2:
-        refresh_rules = st.form_submit_button("Reload Rules from Snowflake")
-
-if refresh_rules:
-    st.rerun()
+    submit_rules = st.form_submit_button("Update Rules in Snowflake")
 
 if submit_rules:
     to_update = edited_df_rules.copy()
