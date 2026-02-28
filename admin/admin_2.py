@@ -2,24 +2,13 @@ from admin.utils import *
 azk = AzureKeyVaultClient()
 snf = SnowflakeClient(kv_client=azk)
 
-
-# Query to fetch data from Snowflake
-query = "Select * from BUDGET.MART.BUDGET where owner = 'Peter'"
-
-# Load data into Pandas DataFrame
-data = snf.run_query_df(query)
-
-# Display the DataFrame using Streamlit
-st.title('Peters Budget Data Viewer')
-
-
 with st.container(border=True):
     st.write("Chart of Monthly Expenses (No Income Included)") 
     data_chart = snf.run_query_df("""Select 
         REPORTING_DATE,
         L1,
         ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE L1 <> 'Income' and transaction_date >= date_trunc(month,dateadd(month,-12,current_date)) and OWNER = 'Peter' 
+        WHERE L1 <> 'Income' and year(transaction_date) = year(current_date()) and OWNER = 'Peter' 
         GROUP BY ALL;""")
     
     
@@ -48,7 +37,7 @@ with st.container(border=True):
     data_chart_2 = snf.run_query_df("""Select 
         REPORTING_DATE,
         SUM(AMOUNT) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE transaction_date >= date_trunc(month,dateadd(month,-12,current_date)) and OWNER = 'Peter' 
+        WHERE year(transaction_date) = year(current_date()) and OWNER = 'Peter' 
         GROUP BY ALL;""")
     
     
@@ -79,10 +68,10 @@ with st.container(border=True):
     # Display the chart in Streamlit
     st.altair_chart(chart_2, use_container_width=True)
 
-with st.container(border=True):
-    st.write("Chart of Monthly Expense Development")  
-    st.line_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
+# with st.container(border=True):
+#     st.write("Chart of Monthly Expense Development")  
+#     st.line_chart(data_chart, x="REPORTING_DATE", y="AMOUNT", color="L1")
 
-#st.write("Here is the raw data from Snowflake:")
-st.dataframe(data)
+# #st.write("Here is the raw data from Snowflake:")
+# st.dataframe(data)
 
