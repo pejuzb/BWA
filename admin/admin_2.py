@@ -39,7 +39,7 @@ if not kpi_data.empty:
     unclass_count = int(kpi_data['UNCLASSIFIED_COUNT'].iloc[0])
     
     with col1:
-        st.metric("💰 Total Expenses YTD", f"${total_exp:,.0f}")
+        st.metric("💰 Total Expenses YTD", f"{total_exp:,.0f}")
     with col2:
         # Calculate months with data
         months_with_data = snf.run_query_df("""
@@ -49,7 +49,7 @@ if not kpi_data.empty:
         """)
         months = int(months_with_data['MONTHS'].iloc[0]) or 1
         avg_monthly = total_exp / months
-        st.metric("📅 Avg Monthly", f"${avg_monthly:,.0f}")
+        st.metric("📅 Avg Monthly", f"{avg_monthly:,.0f}")
     with col3:
         if not category_stats.empty:
             top_cat = category_stats['L1'].iloc[0]
@@ -131,33 +131,32 @@ with st.container(border=True):
     st.altair_chart(chart_2, use_container_width=True)
 
 # ============================================================
-# 3. HIERARCHICAL TREEMAP (L1 → L2 → L3 Breakdown)
+# 3. HIERARCHICAL TREEMAP (L1 → L2 breakdown)
 # ============================================================
 with st.container(border=True):
-    st.write("🗂️ Hierarchical Spending Breakdown (Treemap)")
+    st.write("🗂️ Hierarchical Spending Breakdown")
     
     treemap_data = snf.run_query_df("""
         SELECT 
             COALESCE(L1, 'Unclassified') as L1,
             COALESCE(L2, 'No L2') as L2,
-            COALESCE(L3, 'No L3') as L3,
             ABS(SUM(AMOUNT)) as AMOUNT
         FROM BUDGET.MART.BUDGET
         WHERE L1 <> 'Income' 
           AND YEAR(transaction_date) = YEAR(CURRENT_DATE())
           AND OWNER = 'Peter'
-        GROUP BY L1, L2, L3
+        GROUP BY L1, L2
         HAVING SUM(AMOUNT) < 0
     """)
     
     if not treemap_data.empty:
         fig = px.treemap(
             treemap_data,
-            path=['L1', 'L2', 'L3'],
+            path=['L1', 'L2'],
             values='AMOUNT',
             color='AMOUNT',
             color_continuous_scale='RdYlGn_r',
-            title='Spending Distribution by Category Hierarchy'
+            title='Spending Distribution by Category'
         )
         fig.update_layout(height=500)
         st.plotly_chart(fig, use_container_width=True)
@@ -184,7 +183,7 @@ with st.container(border=True):
     if not trend_data.empty:
         chart_trend = alt.Chart(trend_data).mark_line(point=True).encode(
             x=alt.X('REPORTING_DATE:T', title='Month'),
-            y=alt.Y('AMOUNT:Q', title='Amount ($)'),
+            y=alt.Y('AMOUNT:Q', title='Amount'),
             color=alt.Color('L1:N', title='Category'),
             tooltip=['REPORTING_DATE:T', 'L1:N', 'AMOUNT:Q']
         ).properties(
@@ -234,7 +233,7 @@ with st.container(border=True):
                 source_data,
                 column_config={
                     "SOURCE_SYSTEM": "Bank",
-                    "AMOUNT": st.column_config.NumberColumn("Total", format="$%.2f")
+                    "AMOUNT": st.column_config.NumberColumn("Total", format="%.2f")
                 },
                 hide_index=True,
                 use_container_width=True
@@ -272,9 +271,9 @@ with st.container(border=True):
             mom_data,
             column_config={
                 "REPORTING_DATE": st.column_config.DateColumn("Month", format="MMM YYYY"),
-                "CURRENT_MONTH": st.column_config.NumberColumn("Current", format="$%.2f"),
-                "PREVIOUS_MONTH": st.column_config.NumberColumn("Previous", format="$%.2f"),
-                "CHANGE_AMOUNT": st.column_config.NumberColumn("$ Change", format="$%.2f"),
+                "CURRENT_MONTH": st.column_config.NumberColumn("Current", format="%.2f"),
+                "PREVIOUS_MONTH": st.column_config.NumberColumn("Previous", format="%.2f"),
+                "CHANGE_AMOUNT": st.column_config.NumberColumn("Change", format="%.2f"),
                 "CHANGE_PCT": st.column_config.NumberColumn("% Change", format="%.2f%%")
             },
             hide_index=True,
@@ -345,7 +344,7 @@ with st.container(border=True):
                 "L1": "Category",
                 "L2": "Subcategory",
                 "L3": "Detail",
-                "AMOUNT": st.column_config.NumberColumn("Amount", format="$%.2f"),
+                "AMOUNT": st.column_config.NumberColumn("Amount", format="%.2f"),
                 "SOURCE_SYSTEM": "Bank"
             },
             hide_index=True,
