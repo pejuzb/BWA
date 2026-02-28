@@ -66,28 +66,33 @@ st.divider()
 # ============================================================
 with st.container(border=True):
     st.write("Chart of Monthly Expenses (No Income Included)") 
-    data_chart = snf.run_query_df("""Select 
-        REPORTING_DATE,
-        L1,
-        ABS(SUM(AMOUNT)) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE L1 <> 'Income' and year(transaction_date) = year(current_date()) and OWNER = 'Peter' 
-        GROUP BY ALL;""")
+    data_chart = snf.run_query_df("""
+        SELECT 
+            REPORTING_DATE,
+            L1,
+            SUM(ABS(AMOUNT)) as AMOUNT 
+        FROM BUDGET.MART.BUDGET
+        WHERE L1 <> 'Income' 
+          AND YEAR(transaction_date) = YEAR(CURRENT_DATE()) 
+          AND OWNER = 'Peter' 
+        GROUP BY ALL
+    """)
     
     
     # Create an Altair bar chart
     chart = alt.Chart(data_chart).mark_bar(size=25).encode(
-        x=alt.X('REPORTING_DATE:T', title='Month'),
-        y=alt.Y('AMOUNT:Q', title='Amount', scale=alt.Scale(zero=True)),
+        x=alt.X('yearmonth(REPORTING_DATE):T', title='Month'),
+        y=alt.Y('AMOUNT:Q', title='Amount'),
         color='L1:N'
     ).properties(
         width=600,
         height=400
     ).configure_axis(
-        labelFontSize=14,
-        titleFontSize=16
+        labelFontSize=12,
+        titleFontSize=14
     ).configure_legend(
-        titleFontSize=16,
-        labelFontSize=14
+        titleFontSize=14,
+        labelFontSize=12
     )
     
     # Display the chart in Streamlit
@@ -96,11 +101,15 @@ with st.container(border=True):
 with st.container(border=True):
     st.write("Chart of Monthly P&L")  
 
-    data_chart_2 = snf.run_query_df("""Select 
-        REPORTING_DATE,
-        SUM(AMOUNT) as AMOUNT FROM BUDGET.MART.BUDGET
-        WHERE year(transaction_date) = year(current_date()) and OWNER = 'Peter' 
-        GROUP BY ALL;""")
+    data_chart_2 = snf.run_query_df("""
+        SELECT 
+            REPORTING_DATE,
+            SUM(AMOUNT) as AMOUNT 
+        FROM BUDGET.MART.BUDGET
+        WHERE YEAR(transaction_date) = YEAR(CURRENT_DATE()) 
+          AND OWNER = 'Peter' 
+        GROUP BY ALL
+    """)
     
     
     # Add a color column based on the AMOUNT value
@@ -108,8 +117,8 @@ with st.container(border=True):
     
     # Create an Altair bar chart
     chart_2 = alt.Chart(data_chart_2).mark_bar(size=25).encode(
-        x=alt.X('REPORTING_DATE:T', title='Month'),
-        y=alt.Y('AMOUNT:Q', title='Amount', scale=alt.Scale(zero=True)),
+        x=alt.X('yearmonth(REPORTING_DATE):T', title='Month'),
+        y=alt.Y('AMOUNT:Q', title='Amount'),
         color=alt.condition(
             alt.datum.AMOUNT > 0,
             alt.value('green'),
@@ -119,11 +128,11 @@ with st.container(border=True):
         width=600,
         height=400
     ).configure_axis(
-        labelFontSize=14,
-        titleFontSize=16
+        labelFontSize=12,
+        titleFontSize=14
     ).configure_legend(
-        titleFontSize=16,
-        labelFontSize=14
+        titleFontSize=14,
+        labelFontSize=12
     )
 
     # Display the chart in Streamlit
@@ -198,48 +207,7 @@ with st.container(border=True):
         st.altair_chart(chart_trend, use_container_width=True)
 
 # ============================================================
-# 5. SOURCE SYSTEM SPLIT (REV vs CSOB)
-# ============================================================
-with st.container(border=True):
-    st.write("🏦 Spending by Bank Source")
-    
-    source_data = snf.run_query_df("""
-        SELECT 
-            SOURCE_SYSTEM,
-            ABS(SUM(AMOUNT)) as AMOUNT
-        FROM BUDGET.MART.BUDGET
-        WHERE L1 <> 'Income'
-          AND YEAR(transaction_date) = YEAR(CURRENT_DATE())
-          AND OWNER = 'Peter'
-        GROUP BY SOURCE_SYSTEM
-    """)
-    
-    if not source_data.empty:
-        col_left, col_right = st.columns([1, 1])
-        
-        with col_left:
-            fig_pie = px.pie(
-                source_data,
-                values='AMOUNT',
-                names='SOURCE_SYSTEM',
-                title='Bank Distribution',
-                hole=0.4
-            )
-            st.plotly_chart(fig_pie, use_container_width=True)
-        
-        with col_right:
-            st.dataframe(
-                source_data,
-                column_config={
-                    "SOURCE_SYSTEM": "Bank",
-                    "AMOUNT": st.column_config.NumberColumn("Total", format="%.2f")
-                },
-                hide_index=True,
-                use_container_width=True
-            )
-
-# ============================================================
-# 6. MONTH-OVER-MONTH COMPARISON
+# 5. MONTH-OVER-MONTH COMPARISON
 # ============================================================
 with st.container(border=True):
     st.write("📊 Month-over-Month Change")
@@ -280,7 +248,7 @@ with st.container(border=True):
         )
 
 # ============================================================
-# 7. TRANSACTION DRILLDOWN TABLE
+# 6. TRANSACTION DRILLDOWN TABLE
 # ============================================================
 with st.container(border=True):
     st.write("🔍 Transaction Drilldown")
