@@ -97,9 +97,20 @@ if st.button("Update Rules in Snowflake", key="update_rules"):
 
     try:
         snf.sf_write_pandas(to_update, table_name="RULES_TABLE", schema="RAW")
-        snf.run_query("CALL BUDGET.CORE.SP_LOAD_RULES_SCD2();")
-        st.success(f"Updated {len(to_update)} rule(s) in Snowflake.")
-        st.rerun()
+        result = snf.run_query_df("CALL BUDGET.CORE.SP_LOAD_RULES_SCD2();")
+        
+        # Extract the result data
+        if result is not None and len(result) > 0:
+            sp_result = result.iloc[0, 0]  # Get the returned VARIANT
+            st.success(f"""
+            **SCD2 Process Completed**
+            - Status: {sp_result['status']}
+            - Rows Closed: {sp_result['rows_closed']}
+            - Rows Inserted: {sp_result['rows_inserted']}
+            - Duration: {sp_result['finished_at']} - {sp_result['started_at']}
+            """)
+        else:
+            st.success("Updated rule(s) in Snowflake.")
     except Exception as e:
         st.error(f"Update failed: {e}")
 
