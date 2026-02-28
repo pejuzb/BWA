@@ -227,7 +227,7 @@ with st.container(border=True):
             REPORTING_DATE,
             expenses as current_month,
             LAG(expenses, 1) OVER (ORDER BY REPORTING_DATE) as previous_month,
-            expenses - LAG(expenses, 1) OVER (ORDER BY REPORTING_DATE) as change_amount,
+            ROUND(expenses - LAG(expenses, 1) OVER (ORDER BY REPORTING_DATE), 0) as change_amount,
             ROUND(((expenses - LAG(expenses, 1) OVER (ORDER BY REPORTING_DATE)) / 
                    NULLIF(LAG(expenses, 1) OVER (ORDER BY REPORTING_DATE), 0)) * 100, 2) as change_pct
         FROM monthly
