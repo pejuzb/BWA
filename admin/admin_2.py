@@ -57,7 +57,7 @@ if not kpi_data.empty:
         else:
             st.metric("🏆 Top Category", "N/A")
     with col4:
-        st.metric("⚠️ Unclassified", f"{unclass_count} txns")
+        st.metric("⚠️ Unclassified", f"{unclass_count}")
 
 st.divider()
 
@@ -76,18 +76,18 @@ with st.container(border=True):
     
     # Create an Altair bar chart
     chart = alt.Chart(data_chart).mark_bar(size=25).encode(
-        x='REPORTING_DATE:T',
-        y='AMOUNT:Q',
+        x=alt.X('REPORTING_DATE:T', title='Month'),
+        y=alt.Y('AMOUNT:Q', title='Amount', scale=alt.Scale(zero=True)),
         color='L1:N'
     ).properties(
-        width=600,  # Set the width of the chart
-        height=400  # Set the height of the chart
+        width=600,
+        height=400
     ).configure_axis(
-        labelFontSize=14,  # Adjust axis label size
-        titleFontSize=16,  # Adjust axis title size
+        labelFontSize=14,
+        titleFontSize=16
     ).configure_legend(
-        titleFontSize=16,  # Adjust legend title size
-        labelFontSize=14   # Adjust legend label size
+        titleFontSize=16,
+        labelFontSize=14
     )
     
     # Display the chart in Streamlit
@@ -107,24 +107,23 @@ with st.container(border=True):
     data_chart_2['color'] = data_chart_2['AMOUNT'].apply(lambda x: 'green' if x > 0 else 'red')
     
     # Create an Altair bar chart
-    chart_2 = alt.Chart(data_chart_2).mark_bar(size = 25).encode(
-        x='REPORTING_DATE:T',
-        y='AMOUNT:Q',
+    chart_2 = alt.Chart(data_chart_2).mark_bar(size=25).encode(
+        x=alt.X('REPORTING_DATE:T', title='Month'),
+        y=alt.Y('AMOUNT:Q', title='Amount', scale=alt.Scale(zero=True)),
         color=alt.condition(
-            alt.datum.AMOUNT > 0,  # Condition for positive values
-            alt.value('green'),     # Color if condition is true
-            alt.value('red')        # Color if condition is false
+            alt.datum.AMOUNT > 0,
+            alt.value('green'),
+            alt.value('red')
         )
     ).properties(
         width=600,
         height=400
-    
     ).configure_axis(
-        labelFontSize=14,  # Adjust axis label size
-        titleFontSize=16,  # Adjust axis title size
+        labelFontSize=14,
+        titleFontSize=16
     ).configure_legend(
-        titleFontSize=16,  # Adjust legend title size
-        labelFontSize=14   # Adjust legend label size
+        titleFontSize=16,
+        labelFontSize=14
     )
 
     # Display the chart in Streamlit
