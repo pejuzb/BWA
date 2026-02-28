@@ -47,7 +47,11 @@ if st.button("Recalculate Database"):
 
 
 # Query to fetch data from Snowflake
-query = "Select * from BUDGET.CORE.HIERARCHY where owner = 'Peter'" 
+query = """
+SELECT * 
+FROM BUDGET.CORE.HIERARCHY 
+WHERE owner = 'Peter'
+"""
 
 # Load data into Pandas DataFrame
 df = snf.run_query_df(query)
@@ -68,7 +72,9 @@ SELECT
     L2,
     L3,
     PRIORITY
-FROM CORE.RULES_TABLE ORDER BY 1
+FROM BUDGET.CORE.RULES_TABLE 
+WHERE IS_CURRENT = TRUE
+ORDER BY RULE_ID
 """
 
 # Load data into Pandas DataFrame
@@ -78,23 +84,20 @@ df_rules = snf.run_query_df(query_rules)
 st.title("Rules Table Viewer")
 st.write("Defined rules for hierarchy mapping:")
 
-with st.form("rules_form", clear_on_submit=False):
-    edited_df_rules = st.data_editor(
-        df_rules,
-        num_rows="dynamic",
-        use_container_width=True,
-        key="rules_editor",
-    )
+edited_df_rules = st.data_editor(
+    df_rules,
+    num_rows="dynamic",
+    use_container_width=True,
+    key="rules_editor",
+)
 
-    submit_rules = st.form_submit_button("Update Rules in Snowflake")
-
-if submit_rules:
+if st.button("Update Rules in Snowflake", key="update_rules"):
     to_update = edited_df_rules.copy()
-    to_update["LOAD_DATETIME"] = datetime.now(TZ)  # Add timestamp for SCD2
+    to_update["LOAD_DATETIME"] = datetime.now(TZ)
 
     try:
         snf.sf_write_pandas(to_update, table_name="RULES_TABLE", schema="RAW")
-        snf.run_query("CALL CORE.SP_LOAD_RULES_SCD2();")
+        snf.run_query("CALL BUDGET.CORE.SP_LOAD_RULES_SCD2();")
         st.success(f"Updated {len(to_update)} rule(s) in Snowflake.")
         st.rerun()
     except Exception as e:
@@ -102,8 +105,13 @@ if submit_rules:
 
 
 # Query to fetch data from Snowflake
-query_mh = """Select * from BUDGET.MART.BUDGET where owner = 'Peter' and L1 is null
-order by transaction_date desc;"""
+query_mh = """
+SELECT * 
+FROM BUDGET.MART.BUDGET 
+WHERE owner = 'Peter' 
+AND L1 IS NULL AND YEAR(TRANSACTION_DATE) = 2026
+ORDER BY transaction_date DESC
+"""
 
 # Load data into Pandas DataFrame
 df_mh = snf.run_query_df(query_mh)
@@ -129,9 +137,11 @@ def bump_refresh():
 @st.cache_data(show_spinner="Loading missing hierarchies...")
 def load_data(refresh_token: int) -> pd.DataFrame:
     # refresh_token is unused in logic, but forces cache key changes
-    query = f"""
+    query = """
     WITH tx AS (
-        SELECT DISTINCT prod_hierarchy, source_system
+        SELECT DISTINCT 
+            prod_hierarchy, 
+            source_system
         FROM BUDGET.CORE.TRANSACTION
         WHERE owner = 'Peter'
           AND prod_hierarchy IS NOT NULL
@@ -142,7 +152,7 @@ def load_data(refresh_token: int) -> pd.DataFrame:
         h.L1,
         h.L2,
         h.L3,
-        'Peter'              AS OWNER
+        'Peter'                AS OWNER
     FROM tx
     LEFT JOIN BUDGET.CORE.HIERARCHY h
       ON tx.prod_hierarchy = h.prod_hierarchy_id
