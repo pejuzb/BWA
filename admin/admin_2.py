@@ -142,7 +142,7 @@ with st.container(border=True):
 # 3. HIERARCHICAL TREEMAP (L1 → L2 breakdown)
 # ============================================================
 with st.container(border=True):
-    st.write("🗂️ Hierarchical Spending Breakdown")
+    st.write("🗂️ Hierarchical Spending Breakdown YTD")
     
     treemap_data = snf.run_query_df("""
         SELECT 
@@ -164,7 +164,7 @@ with st.container(border=True):
             values='AMOUNT',
             color='AMOUNT',
             color_continuous_scale='RdYlGn_r',
-            title='Spending Distribution by Category'
+            title='Spending Distribution by Category - YTD',
         )
         fig.update_layout(height=500)
         st.plotly_chart(fig, use_container_width=True)
@@ -234,14 +234,30 @@ with st.container(border=True):
     """)
     
     if not mom_data.empty:
+        # Format change columns with colors
+        def format_change(val):
+            if pd.isna(val) or val is None:
+                return ""
+            return f"{'🔴 +' if val >= 0 else '🟢 -'}{abs(val):.2f}"
+        
+        def format_pct(val):
+            if pd.isna(val) or val is None:
+                return ""
+            return f"{'🔴 +' if val >= 0 else '🟢 -'}{abs(val):.2f}%"
+        
+        # Create formatted dataframe for display
+        mom_display = mom_data.copy()
+        mom_display['Change_Formatted'] = mom_display['CHANGE_AMOUNT'].apply(format_change)
+        mom_display['Pct_Formatted'] = mom_display['CHANGE_PCT'].apply(format_pct)
+        
         st.dataframe(
-            mom_data,
+            mom_display[['REPORTING_DATE', 'CURRENT_MONTH', 'PREVIOUS_MONTH', 'Change_Formatted', 'Pct_Formatted']],
             column_config={
                 "REPORTING_DATE": st.column_config.DateColumn("Month", format="MMM YYYY"),
-                "CURRENT_MONTH": st.column_config.NumberColumn("Current", format="%.2f"),
-                "PREVIOUS_MONTH": st.column_config.NumberColumn("Previous", format="%.2f"),
-                "CHANGE_AMOUNT": st.column_config.NumberColumn("Change", format="%.2f"),
-                "CHANGE_PCT": st.column_config.NumberColumn("% Change", format="%.2f%%")
+                "CURRENT_MONTH": st.column_config.NumberColumn("Current", format="%.0f"),
+                "PREVIOUS_MONTH": st.column_config.NumberColumn("Previous", format="%.0f"),
+                "Change_Formatted": "Change",
+                "Pct_Formatted": "% Change"
             },
             hide_index=True,
             use_container_width=True
