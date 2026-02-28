@@ -134,89 +134,89 @@ st.write("Transaction data with missing hierarchy:")
 st.dataframe(df_mh)
 
 
-# --- session state init ---
-if "refresh_token" not in st.session_state:
-    st.session_state.refresh_token = 0
+# # --- session state init ---
+# if "refresh_token" not in st.session_state:
+#     st.session_state.refresh_token = 0
 
-def bump_refresh():
-    """Forces load_data() cache miss + triggers rerun."""
-    st.session_state.refresh_token += 1
-    st.cache_data.clear()
-    st.rerun()
-
-
-@st.cache_data(show_spinner="Loading missing hierarchies...")
-def load_data(refresh_token: int) -> pd.DataFrame:
-    # refresh_token is unused in logic, but forces cache key changes
-    query = """
-    WITH tx AS (
-        SELECT DISTINCT 
-            prod_hierarchy, 
-            source_system
-        FROM BUDGET.CORE.TRANSACTION
-        WHERE owner = 'Peter'
-          AND prod_hierarchy IS NOT NULL
-    )
-    SELECT
-        MD5(tx.prod_hierarchy) AS HIERARCHY_HK,
-        tx.prod_hierarchy      AS PROD_HIERARCHY_ID,
-        h.L1,
-        h.L2,
-        h.L3,
-        'Peter'                AS OWNER
-    FROM tx
-    LEFT JOIN BUDGET.CORE.HIERARCHY h
-      ON tx.prod_hierarchy = h.prod_hierarchy_id
-     AND h.owner = 'Peter'
-    WHERE h.prod_hierarchy_id IS NULL
-    ORDER BY 1, 2
-    """
-    return snf.run_query_df(query)
+# def bump_refresh():
+#     """Forces load_data() cache miss + triggers rerun."""
+#     st.session_state.refresh_token += 1
+#     st.cache_data.clear()
+#     st.rerun()
 
 
-st.write("### Editable Table (missing in HIERARCHY)")
+# @st.cache_data(show_spinner="Loading missing hierarchies...")
+# def load_data(refresh_token: int) -> pd.DataFrame:
+#     # refresh_token is unused in logic, but forces cache key changes
+#     query = """
+#     WITH tx AS (
+#         SELECT DISTINCT 
+#             prod_hierarchy, 
+#             source_system
+#         FROM BUDGET.CORE.TRANSACTION
+#         WHERE owner = 'Peter'
+#           AND prod_hierarchy IS NOT NULL
+#     )
+#     SELECT
+#         MD5(tx.prod_hierarchy) AS HIERARCHY_HK,
+#         tx.prod_hierarchy      AS PROD_HIERARCHY_ID,
+#         h.L1,
+#         h.L2,
+#         h.L3,
+#         'Peter'                AS OWNER
+#     FROM tx
+#     LEFT JOIN BUDGET.CORE.HIERARCHY h
+#       ON tx.prod_hierarchy = h.prod_hierarchy_id
+#      AND h.owner = 'Peter'
+#     WHERE h.prod_hierarchy_id IS NULL
+#     ORDER BY 1, 2
+#     """
+#     return snf.run_query_df(query)
 
-df = load_data(st.session_state.refresh_token)
 
-with st.form("hierarchy_form", clear_on_submit=False):
-    edited_df = st.data_editor(
-        df,
-        num_rows="dynamic",
-        use_container_width=True,
-        key="hierarchy_editor",
-    )
+# st.write("### Editable Table (missing in HIERARCHY)")
 
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        submit = st.form_submit_button("Insert Data into Snowflake")
-    with col2:
-        refresh = st.form_submit_button("Reload from Snowflake")
+# df = load_data(st.session_state.refresh_token)
 
-if refresh:
-    bump_refresh()
+# with st.form("hierarchy_form", clear_on_submit=False):
+#     edited_df = st.data_editor(
+#         df,
+#         num_rows="dynamic",
+#         use_container_width=True,
+#         key="hierarchy_editor",
+#     )
 
-if submit:
-    # Keep only rows the user actually filled
-    to_insert = edited_df.copy()
-    to_insert = to_insert[to_insert["L1"].notna()].copy()
+#     col1, col2 = st.columns([1, 1])
+#     with col1:
+#         submit = st.form_submit_button("Insert Data into Snowflake")
+#     with col2:
+#         refresh = st.form_submit_button("Reload from Snowflake")
 
-    if to_insert.empty:
-        st.warning("Nothing to insert (fill at least L1).")
-    else:
-        # Add timestamp as proper datetime (prefer datetime over string)
-        to_insert["LOAD_DATETIME"] = datetime.now(TZ)
+# if refresh:
+#     bump_refresh()
 
-        try:
-            # Write to Snowflake
-            snf.sf_write_pandas(to_insert, table_name="HIERARCHY")
+# if submit:
+#     # Keep only rows the user actually filled
+#     to_insert = edited_df.copy()
+#     to_insert = to_insert[to_insert["L1"].notna()].copy()
 
-            # Export to Azure (your method expects LOAD_DATETIME column)
-            abl.export_hierarchy_csv(to_insert)
+#     if to_insert.empty:
+#         st.warning("Nothing to insert (fill at least L1).")
+#     else:
+#         # Add timestamp as proper datetime (prefer datetime over string)
+#         to_insert["LOAD_DATETIME"] = datetime.now(TZ)
 
-            st.success(f"Inserted {len(to_insert)} rows and updated Azure CSV.")
+#         try:
+#             # Write to Snowflake
+#             snf.sf_write_pandas(to_insert, table_name="HIERARCHY")
 
-            # Force reload so table reflects what's now in Snowflake
-            bump_refresh()
+#             # Export to Azure (your method expects LOAD_DATETIME column)
+#             abl.export_hierarchy_csv(to_insert)
 
-        except Exception as e:
-            st.error(f"Insert/export failed: {e}")
+#             st.success(f"Inserted {len(to_insert)} rows and updated Azure CSV.")
+
+#             # Force reload so table reflects what's now in Snowflake
+#             bump_refresh()
+
+#         except Exception as e:
+#             st.error(f"Insert/export failed: {e}")
