@@ -70,7 +70,7 @@ with st.container(border=True):
         SELECT 
             REPORTING_DATE,
             L1,
-            ROUND(SUM(ABS(AMOUNT)),0) as AMOUNT
+            ROUND(ABS(SUM(AMOUNT)),0) as AMOUNT
         FROM BUDGET.MART.BUDGET
         WHERE L1 <> 'Income' 
           AND YEAR(transaction_date) = YEAR(CURRENT_DATE()) 
