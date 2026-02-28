@@ -12,33 +12,52 @@ st.title("📊 Budget Analytics Dashboard")
 kpi_data = snf.run_query_df("""
     SELECT 
         ABS(SUM(CASE WHEN L1 <> 'Income' THEN AMOUNT ELSE 0 END)) as total_expenses,
-        ABS(AVG(CASE WHEN L1 <> 'Income' THEN monthly_total ELSE 0 END)) as avg_monthly,
-        COUNT(CASE WHEN L1 IS NULL THEN 1 END) as unclassified_count,
-        MAX(CASE WHEN L1 <> 'Income' THEN top_category END) as top_category,
-        MAX(CASE WHEN L1 <> 'Income' THEN top_amount END) as top_amount
-    FROM (
-        SELECT 
-            L1,
-            REPORTING_DATE,
-            SUM(AMOUNT) as monthly_total,
-            FIRST_VALUE(L1) OVER (ORDER BY SUM(AMOUNT) DESC) as top_category,
-            FIRST_VALUE(SUM(AMOUNT)) OVER (ORDER BY SUM(AMOUNT) DESC) as top_amount
-        FROM BUDGET.MART.BUDGET
-        WHERE YEAR(transaction_date) = YEAR(CURRENT_DATE()) AND OWNER = 'Peter'
-        GROUP BY L1, REPORTING_DATE
-    )
+        COUNT(CASE WHEN L1 IS NULL THEN 1 END) as unclassified_count
+    FROM BUDGET.MART.BUDGET
+    WHERE YEAR(transaction_date) = YEAR(CURRENT_DATE()) 
+      AND OWNER = 'Peter'
+""")
+
+# Get category stats
+category_stats = snf.run_query_df("""
+    SELECT 
+        L1,
+        ABS(SUM(AMOUNT)) as category_total
+    FROM BUDGET.MART.BUDGET
+    WHERE L1 <> 'Income' 
+      AND YEAR(transaction_date) = YEAR(CURRENT_DATE())
+      AND OWNER = 'Peter'
+    GROUP BY L1
+    ORDER BY category_total DESC
+    LIMIT 1
 """)
 
 if not kpi_data.empty:
     col1, col2, col3, col4 = st.columns(4)
+    
+    total_exp = kpi_data['TOTAL_EXPENSES'].iloc[0]
+    unclass_count = int(kpi_data['UNCLASSIFIED_COUNT'].iloc[0])
+    
     with col1:
-        st.metric("💰 Total Expenses YTD", f"${kpi_data['TOTAL_EXPENSES'].iloc[0]:,.0f}")
+        st.metric("💰 Total Expenses YTD", f"${total_exp:,.0f}")
     with col2:
-        st.metric("📅 Avg Monthly", f"${kpi_data['AVG_MONTHLY'].iloc[0]:,.0f}")
+        # Calculate months with data
+        months_with_data = snf.run_query_df("""
+            SELECT COUNT(DISTINCT REPORTING_DATE) as months
+            FROM BUDGET.MART.BUDGET
+            WHERE YEAR(transaction_date) = YEAR(CURRENT_DATE()) AND OWNER = 'Peter'
+        """)
+        months = int(months_with_data['MONTHS'].iloc[0]) or 1
+        avg_monthly = total_exp / months
+        st.metric("📅 Avg Monthly", f"${avg_monthly:,.0f}")
     with col3:
-        st.metric("🏆 Top Category", kpi_data['TOP_CATEGORY'].iloc[0] if kpi_data['TOP_CATEGORY'].iloc[0] else "N/A")
+        if not category_stats.empty:
+            top_cat = category_stats['L1'].iloc[0]
+            st.metric("🏆 Top Category", top_cat)
+        else:
+            st.metric("🏆 Top Category", "N/A")
     with col4:
-        st.metric("⚠️ Unclassified", f"{int(kpi_data['UNCLASSIFIED_COUNT'].iloc[0])} txns")
+        st.metric("⚠️ Unclassified", f"{unclass_count} txns")
 
 st.divider()
 
