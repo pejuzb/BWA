@@ -70,7 +70,7 @@ with st.container(border=True):
         SELECT 
             REPORTING_DATE,
             L1,
-            SUM(ABS(AMOUNT)) as AMOUNT 
+            ROUND(SUM(ABS(AMOUNT)),0) as AMOUNT
         FROM BUDGET.MART.BUDGET
         WHERE L1 <> 'Income' 
           AND YEAR(transaction_date) = YEAR(CURRENT_DATE()) 
@@ -104,7 +104,7 @@ with st.container(border=True):
     data_chart_2 = snf.run_query_df("""
         SELECT 
             REPORTING_DATE,
-            SUM(AMOUNT) as AMOUNT 
+            ROUND(SUM(AMOUNT),0) as AMOUNT 
         FROM BUDGET.MART.BUDGET
         WHERE YEAR(transaction_date) = YEAR(CURRENT_DATE()) 
           AND OWNER = 'Peter' 
@@ -179,7 +179,7 @@ with st.container(border=True):
         SELECT 
             REPORTING_DATE,
             L1,
-            ABS(SUM(AMOUNT)) as AMOUNT
+            ROUND(ABS(SUM(AMOUNT)),0) as AMOUNT
         FROM BUDGET.MART.BUDGET
         WHERE L1 <> 'Income' 
           AND YEAR(transaction_date) = YEAR(CURRENT_DATE())
