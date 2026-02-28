@@ -48,17 +48,18 @@ if st.button("Recalculate Database"):
 
 # Query to fetch data from Snowflake
 query = """
-SELECT * 
-FROM BUDGET.CORE.HIERARCHY 
+SELECT *
+FROM BUDGET.MART.BUDGET
 WHERE owner = 'Peter'
+    AND YEAR(transaction_date) = YEAR(CURRENT_DATE())
 """
 
 # Load data into Pandas DataFrame
 df = snf.run_query_df(query)
 
 # Display the DataFrame using Streamlit
-st.title("Snowflake Data Viewer")
-st.write("Here is the data from Snowflake:")
+st.title(f"Current Year Data View ({datetime.now(TZ).year})")
+st.write("Mart budget view w/o restriction:")
 st.dataframe(df)
 
 
@@ -129,8 +130,8 @@ df_mh = snf.run_query_df(query_mh)
 
 
 # Display the DataFrame using Streamlit
-st.title("Record with Missing Hierarchy")
-st.write("Transaction data with missing hierarchy:")
+st.title(f"Current Year Data View ({datetime.now(TZ).year})")
+st.write("Mart budget view missing L1:")
 st.dataframe(df_mh)
 
 
